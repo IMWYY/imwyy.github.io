@@ -19,12 +19,12 @@
   <title>A Programmer</title>
   <meta property="og:type" content="website">
 <meta property="og:title" content="stpehac的博客">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:url" content="http://imwyy.github.io/index.html">
 <meta property="og:site_name" content="stpehac的博客">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="stpehac的博客">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://yoursite.com/index.html">
+  <link rel="canonical" href="http://imwyy.github.io/index.html">
   
     <link rel="alternate" href="/atom.xml" title="stpehac的博客" type="application/atom+xml">
   
@@ -138,7 +138,7 @@
         
         
         
-        <li class="menu-item menu-item-about active">
+        <li class="menu-item menu-item-about">
           <a href="/about">
             
             <i class="fa fa-fw fa-coffee"></i>
@@ -191,7 +191,7 @@
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -218,6 +218,21 @@
             </div>
           </li>
           
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2017/12/09/hello-world/" class="title">Hello World</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2017-12-09T12:02:39.477Z" itemprop="datePublished">2017-12-09</time>
+              </p>
+            </div>
+          </li>
+          
       </ul>
     </div>
   </div>
@@ -230,157 +245,63 @@
   
   <main class="main" role="main">
   
-  
-    <div class="content">
-  <article id="post-安装配置mongoDB" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="content article-list">
     
-    <div class="article-header">
-      
-        
+      <article class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="article-header">
+    
   
     <h1 itemprop="name">
       <a class="article-title" href="/2017/12/09/安装配置mongoDB/">安装配置mongoDB</a>
     </h1>
   
 
-      
-      <div class="article-meta">
-        <span class="article-date">
+  </div>
+  
+  <p class="article-meta">
+    <span class="article-date">
     <i class="fa fa-calendar-check-o"></i>
 	<a href="/2017/12/09/安装配置mongoDB/" class="article-date">
-	  <time datetime="2017-12-09T12:27:36.000Z" itemprop="datePublished">2017-12-09</time>
+	  <time datetime="2017-12-09T12:27:36.000Z" itemprop="datePublished">Dec 9</time>
 	</a>
 </span>
-        
-        
-
-        
-	<span class="article-read hidden-xs">
-	    <i class="fa fa-eye" aria-hidden="true"></i>
-	    <span id="busuanzi_container_page_pv">
-			<span id="busuanzi_value_page_pv">0</span>
-		</span>
-	</span>
-
-
-        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2017/12/09/安装配置mongoDB/#comments" class="article-comment-link">Comments</a></span>
-        
-      </div>
-      
-    </div>
-    <div class="article-entry markdown-body" itemprop="articleBody">
-      
-        <p>最近在在学习nodejs，相比mysql，mongodb与nodejs搭配更合适，存储数据格式也比较接近JS对象。关于mysql和mongodb两种类型数据库的差别与对比，下篇文章再写。<br>下面来看一下如何在mac上安装mongodb。</p>
-<hr>
-<h2 id="Homebrew"><a href="#Homebrew" class="headerlink" title="Homebrew"></a>Homebrew</h2><p>你可以选择选择下载mongodb源码编译安装，当然在mac上更方便快捷的方式是用homebrew安装。homebrew是mac上的一个包管理器，相当于ubantu的apt—get。第一次接触homebrew的同学可以戳<a href="https://brew.sh" target="_blank" rel="noopener">官网</a>。</p>
-<hr>
-<h2 id="安装过程"><a href="#安装过程" class="headerlink" title="安装过程"></a>安装过程</h2><p>首先在终端输入如下命令更新Homebrew的package数据库</p>
-<pre><code>brew update
-</code></pre><p>更新完毕后，接着输入如下命令进行安装mongodb</p>
-<pre><code>brew install mongodb
-</code></pre><p>安装完成终端大概会出现如下命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">==&gt; Downloading https://downloads.sf.net/project/machomebrew/Bottles/mongodb-3.4</span><br><span class="line">######################################################################## 100.0%</span><br><span class="line">==&gt; Pouring mongodb-3.4.6.mavericks.bottle.2.tar.gz</span><br><span class="line">==&gt; Caveats</span><br><span class="line">To have launchd start mongodb at login:</span><br><span class="line">ln -sfv /usr/local/opt/mongodb/*.plist ~/Library/LaunchAgents</span><br><span class="line">Then to load mongodb now:</span><br><span class="line">launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mongodb.plist</span><br><span class="line">Or, if you don’t want/need launchctl, you can just run:</span><br><span class="line">mongod —config /usr/local/etc/mongod.conf</span><br><span class="line">==&gt; Summary</span><br><span class="line">/usr/local/Cellar/mongodb/3.4.6: 17 files, 331M</span><br></pre></td></tr></table></figure></p>
-<p>好了现在安装完成。</p>
-<hr>
-<h2 id="启动mongbd"><a href="#启动mongbd" class="headerlink" title="启动mongbd"></a>启动mongbd</h2><p>输入命令</p>
-<pre><code>mongod --config /usr/local/etc/mongod.conf
-</code></pre><p>然后在终端输入命令</p>
-<pre><code>mongo
-</code></pre><p>出现如下命令则表示启动成功</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">MongoDB shell version v3.4.6</span><br><span class="line">connecting to: mongodb://127.0.0.1:27017</span><br><span class="line">MongoDB server version: 3.4.6</span><br><span class="line">Server has startup warnings: </span><br><span class="line">2017-08-02T16:21:45.890+0800 I CONTROL  [initandlisten] </span><br><span class="line">2017-08-02T16:21:45.890+0800 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.</span><br><span class="line">2017-08-02T16:21:45.890+0800 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.</span><br><span class="line">2017-08-02T16:21:45.890+0800 I CONTROL  [initandlisten] </span><br><span class="line">2017-08-02T16:21:45.890+0800 I CONTROL  [initandlisten] </span><br><span class="line">2017-08-02T16:21:45.890+0800 I CONTROL  [initandlisten] ** WARNING: soft rlimits too low. Number of files is 256, should be at least 1000</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
-<p>终端输入<code>exit</code>可以退出数据库终端操作。</p>
-<hr>
-<h2 id="关闭mongodb"><a href="#关闭mongodb" class="headerlink" title="关闭mongodb"></a>关闭mongodb</h2><h3 id="1-使用数据库命令关闭"><a href="#1-使用数据库命令关闭" class="headerlink" title="1. 使用数据库命令关闭"></a>1. 使用数据库命令关闭</h3><p>在 <strong>数据库操作的终端</strong> 依次输入如下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; use admin</span><br><span class="line">&gt; db.shutdownServer()</span><br></pre></td></tr></table></figure></p>
-<p>注意这里命令区分大小写。</p>
-<h3 id="2-使用kill命令关闭"><a href="#2-使用kill命令关闭" class="headerlink" title="2. 使用kill命令关闭"></a>2. 使用kill命令关闭</h3><p><strong>新建终端窗口</strong> 输入如下命令</p>
-<pre><code>ps -ef | grep mongo
-</code></pre><p>这个命令查看关于mongo的所有进程的所有信息。如下是我输入命令显示的信息。其中第二列数据是pid。最后一列显示了当时启动该进程输入的命令。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">501  3734  3693   0  5:28下午 ttys000    0:00.00 grep mongo</span><br><span class="line">501  3707  3601   0  5:06下午 ttys001    0:06.13 mongod --auth --port 27017 --dbpath /data/db</span><br></pre></td></tr></table></figure></p>
-<p>再使用kill+pid命令关闭mongo运行的进程。</p>
-<pre><code>kill 3707 
-</code></pre><p>这种方式一般用于强制关闭。不建议使用。</p>
-<hr>
-<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><h3 id="1-启动时WARNING问题"><a href="#1-启动时WARNING问题" class="headerlink" title="1. 启动时WARNING问题"></a>1. 启动时WARNING问题</h3><p>我们在一开始使用<code>mongod --config /usr/local/etc/mongod.conf</code> 启动mongodb时，出现了一大堆提示信息，包括了一些warning，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2017-08-02T16:21:45.890+0800 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.</span><br><span class="line">2017-08-02T16:21:45.890+0800 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.</span><br></pre></td></tr></table></figure></p>
-<p>这些warning并不影响使用数据库，但总出现warning看着也很不爽，那这些命令到底是什么呢？怎么解决呢？</p>
-<p>其实，这是新版mongodb要求我们建立一个安全的数据库。对数据库操作权限设置，只能允许授权用户操作制定数据库。在<a href="https://stackoverflow.com/questions/41615574/mongodb-server-has-startup-warnings-access-control-is-not-enabled-for-the-dat" target="_blank" rel="noopener">stackoverflow</a>上找到了解决方案。</p>
-<ol>
-<li>如果刚刚启动了mongodb请关闭。方法参考上面。</li>
-<li>输入如下命令启动mongodb。这里 /data/db是mongodb存放数据的目录。homebrew安装一般会自动创建。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongod --port 27017 --dbpath /data/db</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<ol>
-<li><p>新建一个终端窗口连接mongodb</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongo --port 27017</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>输入如下数据库命令创建用户。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">use admin</span><br><span class="line">db.createUser(</span><br><span class="line">  &#123;</span><br><span class="line">    user: &quot;yourname&quot;,</span><br><span class="line">    pwd: &quot;yourpwd&quot;,</span><br><span class="line">    roles: [ &#123; role: &quot;userAdminAnyDatabase&quot;, db: &quot;admin&quot; &#125; ]</span><br><span class="line">  &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>关闭数据库并用如下命令重启。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongod --auth --port 27017 --dbpath /data/db</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<ol>
-<li><p>连接数据库。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongo --port 27017 -u &quot;yourname&quot; -p &quot;yourpwd&quot; --authenticationDatabase &quot;admin&quot;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>好了现在就会发现WARNING不见了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MongoDB shell version v3.4.6</span><br><span class="line">connecting to: mongodb://127.0.0.1:27017</span><br><span class="line">MongoDB server version: 3.4.6</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在使用时，如果要指定某个用户对某个数据库的操作，可以创建用户指定权限。 比如 Tester用户对test数据对操作为可读可写。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">use test</span><br><span class="line">db.createUser(</span><br><span class="line">  &#123;</span><br><span class="line">    user: &quot;Tester&quot;,</span><br><span class="line">    pwd: &quot;123&quot;,</span><br><span class="line">    roles: [ &#123; role: &quot;readWrite&quot;, db: &quot;test&quot; &#125;,</span><br><span class="line">             &#123; role: &quot;read&quot;, db: &quot;reporting&quot; &#125; ]</span><br><span class="line">  &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>连接数据库的命令就变成了</p>
-<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongo --port 27017 -u &quot;Tester&quot; -p &quot;123&quot; --authenticationDatabase &quot;test&quot;</span><br></pre></td></tr></table></figure>
-</code></pre><p>当然如果nodejs使用mongoose操作mongodb时，连接的命令也需要填充一些参数</p>
-<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongoose.createConnection(&apos;localhost&apos;, &apos;test&apos;, 27017, &#123;user: &apos;Tester&apos;, pass: &apos;123&apos;&#125;);</span><br></pre></td></tr></table></figure>
-</code></pre><p>###2. 启动或关闭数据库时Exception问题<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[initandlisten] exception in initAndListen: 20 Attempted to create a lock file on a read-only directory: /data/db, terminating</span><br><span class="line">[initandlisten] shutdown: going to close listening sockets...</span><br><span class="line">[initandlisten] shutdown: going to flush diaglog...</span><br><span class="line">[initandlisten] now exiting</span><br><span class="line">[initandlisten] shutting down with code:100</span><br></pre></td></tr></table></figure></p>
-<p>这个问题是因为 只有root对 /data/db可写，但是你在用自己的账户操作，所以可以用一下命令授权解决问题。</p>
-<pre><code>sudo chmod -R go+w /data/db
-</code></pre><p>或者</p>
-<pre><code>sudo chown -R $USER /data/db
-</code></pre><hr>
-<p>好了文章就写到这里。再遇见什么坑和问题会后续补充。</p>
-
-      
-    </div>
-    <div class="article-footer">
-      <blockquote class="mt-2x">
-  <ul class="post-copyright list-unstyled">
     
-    <li class="post-copyright-link hidden-xs">
-      <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2017/12/09/安装配置mongoDB/" title="安装配置mongoDB" target="_blank" rel="external">http://yoursite.com/2017/12/09/安装配置mongoDB/</a>
-    </li>
     
-    <li class="post-copyright-license">
-      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
-    </li>
-  </ul>
-</blockquote>
 
+    <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2017/12/09/安装配置mongoDB/#comments" class="article-comment-link">Comments</a></span>
+    
+  </p>
+</article>
 
-<div class="panel panel-default panel-badger">
-  <div class="panel-body">
-    <figure class="media">
-      <div class="media-left">
-        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
-          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
-        </a>
-      </div>
-      <div class="media-body">
-        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
-        <div>我真的不会码代码。</div>
-      </div>
-    </figure>
+    
+      <article class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="article-header">
+    
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/09/hello-world/">Hello World</a>
+    </h1>
+  
+
   </div>
-</div>
-
-
-    </div>
-  </article>
   
-</div>
+  <p class="article-meta">
+    <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2017/12/09/hello-world/" class="article-date">
+	  <time datetime="2017-12-09T12:02:39.477Z" itemprop="datePublished">Dec 9</time>
+	</a>
+</span>
+    
+    
 
-  
+    <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2017/12/09/hello-world/#comments" class="article-comment-link">Comments</a></span>
+    
+  </p>
+</article>
+
+    
+  </div>
 
    
 </main>
