@@ -24,15 +24,15 @@
 <meta property="og:url" content="http://imwyy.github.io/2017/12/12/alfred的workflow/index.html">
 <meta property="og:site_name" content="stpehac的博客">
 <meta property="og:description" content="关于alfred之前也一直使用被称为mac神器到alfred。直到今天才发现我用的是低版本，功能非常基础。而高版本所支持的workflow才是真的称为神器。alfred下载猛戳这里这里。至于powerpack的一些功能，可以选择购买使用或者…（滑稽脸） workflowworkflow就是让alfred直接执行脚本，包括shell、python、php等，直接那两个例子来解释，就知道他有多方便了。">
-<meta property="og:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/images/alfred1.png">
-<meta property="og:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/images/alfred2.png">
-<meta property="og:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/images/alfred3.png">
-<meta property="og:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/images/alfred4.png">
-<meta property="og:updated_time" content="2017-12-12T12:25:27.873Z">
+<meta property="og:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/alfred1.png">
+<meta property="og:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/alfred2.png">
+<meta property="og:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/alfred3.png">
+<meta property="og:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/alfred4.png">
+<meta property="og:updated_time" content="2017-12-12T12:38:20.558Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="alfred的workflow">
 <meta name="twitter:description" content="关于alfred之前也一直使用被称为mac神器到alfred。直到今天才发现我用的是低版本，功能非常基础。而高版本所支持的workflow才是真的称为神器。alfred下载猛戳这里这里。至于powerpack的一些功能，可以选择购买使用或者…（滑稽脸） workflowworkflow就是让alfred直接执行脚本，包括shell、python、php等，直接那两个例子来解释，就知道他有多方便了。">
-<meta name="twitter:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/images/alfred1.png">
+<meta name="twitter:image" content="http://imwyy.github.io/2017/12/12/alfred的workflow/alfred1.png">
   <!-- Canonical links -->
   <link rel="canonical" href="http://imwyy.github.io/2017/12/12/alfred的workflow/index.html">
   
@@ -126,7 +126,7 @@
         
         
         
-        <li class="menu-item menu-item-categories">
+        <li class="menu-item menu-item-categories active">
           <a href="/categories">
             
             <i class="fa fa-fw fa-folder"></i>
@@ -362,13 +362,13 @@
 <h4 id="登录校园网（使用python脚本）"><a href="#登录校园网（使用python脚本）" class="headerlink" title="登录校园网（使用python脚本）"></a>登录校园网（使用python脚本）</h4><p>在之前用旧版本的alfred登录校园网所用的方法是在feature添加web url，输入p打开p.nju.edu.cn。然后点击输入浏览器记住的密码登陆。相比打开浏览器页面已经快捷很多。但是如果使用workflow可以直接，输入指定内容，回车就可以登陆。具体定义该workflow的步骤如下：</p>
 <ol>
 <li><p>preference中点击workflow,按照如图选择keyword to script</p>
-<p> <img src="images/alfred1.png" alt=""></p>
+<p> <img src="/2017/12/12/alfred的workflow/alfred1.png" alt=""></p>
 </li>
 <li><p>输入关键字和描述，保存</p>
-<p> <img src="images/alfred2.png" alt=""></p>
+<p> <img src="/2017/12/12/alfred的workflow/alfred2.png" alt=""></p>
 </li>
 <li><p>右键创建script</p>
-<p> <img src="images/alfred3.png" alt=""></p>
+<p> <img src="/2017/12/12/alfred的workflow/alfred3.png" alt=""></p>
 </li>
 <li><p>输入执行的脚本并保存</p>
 </li>
@@ -377,7 +377,7 @@
 <p>快捷键打开alfred输入框，输入你的关键字，回车。就连上了校园网，简直方便到爆。</p>
 <h4 id="部署hexo博客（使用shell脚本）"><a href="#部署hexo博客（使用shell脚本）" class="headerlink" title="部署hexo博客（使用shell脚本）"></a>部署hexo博客（使用shell脚本）</h4><p>一般部署hexo博客要输入三条命令<code>hexo clean</code> <code>hexo g</code> <code>hexo d</code>。每次都要打开终端输入三个命令真的很麻烦，进阶方法是将命令写成shell脚本，打开终端执行./xxx.sh。当然也可以利用alfred，连终端都不用自己打开。</p>
 <p>1 2 3步骤和上个例子一样，不过第四步选择terminal command</p>
-<p><img src="images/alfred4.png" alt=""></p>
+<p><img src="/2017/12/12/alfred的workflow/alfred4.png" alt=""></p>
 <p>然后输入脚本</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd 你的博客本地目录 &amp;&amp; hexo clean &amp;&amp; hexo g &amp;&amp; hexo d</span><br></pre></td></tr></table></figure>
 <p>写完博客，快捷键打开alfred输入框，输入你定义的关键字，回车。部署完成。<br>同理也可以将博客创建的几条命令放在shell脚本用workflow打开。</p>
