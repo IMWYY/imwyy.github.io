@@ -16,20 +16,22 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>干货集 | A Programmer</title>
-  <meta name="description" content="HTTP报文GET和POST请求的区别HTTP2.0">
-<meta name="keywords" content="干货">
+  <title>servlet的filter使用替换流 | A Programmer</title>
+  <meta name="description" content="servlet过滤器工作流程 servlet过滤器在request到达servlet前可以拦截，在response到达客户端之前可以捕获。这样便可以在过滤器中处理一些请求响应的前置操作或通用操作。 常见的一种应用就是进行敏感词过滤。 但是如果直接使用HttpServletResponse，这是一个流，无法对已经out.println()的内容进行修改。所以这里需要替代流。 替代流（stand-in">
+<meta name="keywords" content="java EE,servlet">
 <meta property="og:type" content="article">
-<meta property="og:title" content="干货集">
-<meta property="og:url" content="http://imwyy.github.io/2017/12/11/干货/index.html">
+<meta property="og:title" content="servlet的filter使用替换流">
+<meta property="og:url" content="http://imwyy.github.io/2017/12/22/servlet的filter使用替换流/index.html">
 <meta property="og:site_name" content="stpehac的博客">
-<meta property="og:description" content="HTTP报文GET和POST请求的区别HTTP2.0">
-<meta property="og:updated_time" content="2017-12-11T07:57:31.092Z">
+<meta property="og:description" content="servlet过滤器工作流程 servlet过滤器在request到达servlet前可以拦截，在response到达客户端之前可以捕获。这样便可以在过滤器中处理一些请求响应的前置操作或通用操作。 常见的一种应用就是进行敏感词过滤。 但是如果直接使用HttpServletResponse，这是一个流，无法对已经out.println()的内容进行修改。所以这里需要替代流。 替代流（stand-in">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/7054861-c3cb93856353c0fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-12-22T06:19:23.071Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="干货集">
-<meta name="twitter:description" content="HTTP报文GET和POST请求的区别HTTP2.0">
+<meta name="twitter:title" content="servlet的filter使用替换流">
+<meta name="twitter:description" content="servlet过滤器工作流程 servlet过滤器在request到达servlet前可以拦截，在response到达客户端之前可以捕获。这样便可以在过滤器中处理一些请求响应的前置操作或通用操作。 常见的一种应用就是进行敏感词过滤。 但是如果直接使用HttpServletResponse，这是一个流，无法对已经out.println()的内容进行修改。所以这里需要替代流。 替代流（stand-in">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/7054861-c3cb93856353c0fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://imwyy.github.io/2017/12/11/干货/index.html">
+  <link rel="canonical" href="http://imwyy.github.io/2017/12/22/servlet的filter使用替换流/index.html">
   
     <link rel="alternate" href="/atom.xml" title="stpehac的博客" type="application/atom+xml">
   
@@ -297,14 +299,14 @@
   
 <main class="main" role="main">
   <div class="content">
-  <article id="post-干货" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-servlet的filter使用替换流" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      干货集
+      servlet的filter使用替换流
     </h1>
   
 
@@ -312,20 +314,20 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="fa fa-calendar-check-o"></i>
-	<a href="/2017/12/11/干货/" class="article-date">
-	  <time datetime="2017-12-11T06:39:36.000Z" itemprop="datePublished">2017-12-11</time>
+	<a href="/2017/12/22/servlet的filter使用替换流/" class="article-date">
+	  <time datetime="2017-12-22T04:59:22.000Z" itemprop="datePublished">2017-12-22</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="fa fa-folder"></i>
-    <a class="article-category-link" href="/categories/干货/">干货</a>
+    <a class="article-category-link" href="/categories/java/">java</a>
   </span>
 
         
   <span class="article-tag">
     <i class="fa fa-tag"></i>
-	<a class="article-tag-link" href="/tags/干货/">干货</a>
+	<a class="article-tag-link" href="/tags/java-EE/">java EE</a>, <a class="article-tag-link" href="/tags/servlet/">servlet</a>
   </span>
 
 
@@ -338,13 +340,13 @@
 	</span>
 
 
-        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2017/12/11/干货/#comments" class="article-comment-link">Comments</a></span>
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2017/12/22/servlet的filter使用替换流/#comments" class="article-comment-link">Comments</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 12(words)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 412(words)</span>
 	
 	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 1(minutes)</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 2(minutes)</span>
 	
 
       </div>
@@ -352,7 +354,19 @@
     </div>
     <div class="article-entry markdown-body" itemprop="articleBody">
       
-        <h4 id="HTTP报文"><a href="#HTTP报文" class="headerlink" title="HTTP报文"></a><a href="https://yq.aliyun.com/articles/44672" target="_blank" rel="noopener">HTTP报文</a></h4><h4 id="GET和POST请求的区别"><a href="#GET和POST请求的区别" class="headerlink" title="GET和POST请求的区别"></a><a href="https://sunshinevvv.coding.me/blog/2017/02/09/HttpGETv.s.POST/#" target="_blank" rel="noopener">GET和POST请求的区别</a></h4><h4 id="HTTP2-0"><a href="#HTTP2-0" class="headerlink" title="HTTP2.0"></a><a href="https://segmentfault.com/a/1190000002765886" target="_blank" rel="noopener">HTTP2.0</a></h4>
+        <h2 id="servlet过滤器工作流程"><a href="#servlet过滤器工作流程" class="headerlink" title="servlet过滤器工作流程"></a>servlet过滤器工作流程</h2><p><img src="http://upload-images.jianshu.io/upload_images/7054861-c3cb93856353c0fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="屏幕快照 2017-12-20 下午7.49.51.png"></p>
+<p>servlet过滤器在request到达servlet前可以拦截，在response到达客户端之前可以捕获。这样便可以在过滤器中处理一些请求响应的前置操作或通用操作。</p>
+<p>常见的一种应用就是进行敏感词过滤。</p>
+<p>但是如果直接使用<code>HttpServletResponse</code>，这是一个流，无法对已经<code>out.println()</code>的内容进行修改。所以这里需要替代流。</p>
+<h2 id="替代流（stand-in-stream）"><a href="#替代流（stand-in-stream）" class="headerlink" title="替代流（stand-in stream）"></a>替代流（stand-in stream）</h2><h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>在请求到达servlet之前拦截<code>HttpServletResponse</code>，将<code>HttpServletResponse</code>封装成替代流，之后servlet操作的对象即是这个封装后的替代流。这里的封装本质上就是建立一个输出缓冲区，servlet的所有输出都输出到了这个缓冲区，并没有直接写入真正的<code>HttpServletResponse</code>。</p>
+<p>然后在响应返回阶段，捕获之前封装的<code>HttpServletResponse</code>，然后将servlet中输出到缓冲区的内容，进行敏感词过滤。</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>利用<code>HttpServletResponseWrapper</code>包装<code>HttpServletResponse</code>，并重写输出流的方法。</p>
+<p>一种实现方法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BufferedResponse</span> <span class="keyword">extends</span> <span class="title">HttpServletResponseWrapper</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> PrintWriter printWriter;  </span><br><span class="line">    <span class="keyword">private</span> CharArrayWriter charArrayWriter;  </span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">BufferedResponse</span><span class="params">(HttpServletResponse response)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">super</span>(response);  </span><br><span class="line">        charArrayWriter = <span class="keyword">new</span> CharArrayWriter();  </span><br><span class="line">        printWriter = <span class="keyword">new</span> PrintWriter(bufferedWriter);  </span><br><span class="line">    &#125;  </span><br><span class="line">   </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> PrintWriter <span class="title">getWriter</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> printWriter;  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getOutput</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> charArrayWriter.toString();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>过滤器中使用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">       BufferedResponse bufferedResponse = <span class="keyword">new</span> BufferedResponse(servletResponse);</span><br><span class="line">       </span><br><span class="line">       <span class="comment">// filterChain.doFilter 这里指继续处理后续步骤</span></span><br><span class="line">       filterChain.doFilter(servletRequest, bufferedResponse);</span><br><span class="line">       </span><br><span class="line">        <span class="comment">//这里servlet已经处理完，output即servlet的输出，在这里替换敏感词</span></span><br><span class="line">       String output = bufferedResponse.getOutput();</span><br><span class="line">      </span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>以及如果对CharArrayWriter陌生，点击这里 <a href="https://www.cnblogs.com/skywang12345/p/io_19.html" target="_blank" rel="noopener">CharArrayWriter</a></p>
+
       
     </div>
     <div class="article-footer">
@@ -361,7 +375,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://imwyy.github.io/2017/12/11/干货/" title="干货集" target="_blank" rel="external">http://imwyy.github.io/2017/12/11/干货/</a>
+      <a href="http://imwyy.github.io/2017/12/22/servlet的filter使用替换流/" title="servlet的filter使用替换流" target="_blank" rel="external">http://imwyy.github.io/2017/12/22/servlet的filter使用替换流/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -409,13 +423,9 @@
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/2017/12/12/数据库索引/" title="数据库索引"><i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;Newer</a>
-    </li>
-    
     
     <li class="next">
-      <a href="/2017/12/10/rxjava2的disposable/" title="rxjava2的disposable">Older&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+      <a href="/2017/12/21/android.content.res.Resources$NotFoundException/" title="android.content.res.Resources$NotFoundException">Older&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
     </li>
     
   </ul>
