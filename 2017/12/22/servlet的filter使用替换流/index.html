@@ -18,14 +18,14 @@
   
   <title>servlet的filter使用替换流 | A Programmer</title>
   <meta name="description" content="servlet过滤器工作流程 servlet过滤器在request到达servlet前可以拦截，在response到达客户端之前可以捕获。这样便可以在过滤器中处理一些请求响应的前置操作或通用操作。 常见的一种应用就是进行敏感词过滤。 但是如果直接使用HttpServletResponse，这是一个流，无法对已经out.println()的内容进行修改。所以这里需要替代流。 替代流（stand-in">
-<meta name="keywords" content="java EE,servlet">
+<meta name="keywords" content="java EE">
 <meta property="og:type" content="article">
 <meta property="og:title" content="servlet的filter使用替换流">
 <meta property="og:url" content="http://imwyy.github.io/2017/12/22/servlet的filter使用替换流/index.html">
 <meta property="og:site_name" content="stpehac的博客">
 <meta property="og:description" content="servlet过滤器工作流程 servlet过滤器在request到达servlet前可以拦截，在response到达客户端之前可以捕获。这样便可以在过滤器中处理一些请求响应的前置操作或通用操作。 常见的一种应用就是进行敏感词过滤。 但是如果直接使用HttpServletResponse，这是一个流，无法对已经out.println()的内容进行修改。所以这里需要替代流。 替代流（stand-in">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/7054861-c3cb93856353c0fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-12-22T06:19:23.071Z">
+<meta property="og:updated_time" content="2017-12-22T11:31:34.240Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="servlet的filter使用替换流">
 <meta name="twitter:description" content="servlet过滤器工作流程 servlet过滤器在request到达servlet前可以拦截，在response到达客户端之前可以捕获。这样便可以在过滤器中处理一些请求响应的前置操作或通用操作。 常见的一种应用就是进行敏感词过滤。 但是如果直接使用HttpServletResponse，这是一个流，无法对已经out.println()的内容进行修改。所以这里需要替代流。 替代流（stand-in">
@@ -123,7 +123,7 @@
         
         
         
-        <li class="menu-item menu-item-categories">
+        <li class="menu-item menu-item-categories active">
           <a href="/categories">
             
             <i class="fa fa-fw fa-folder"></i>
@@ -179,7 +179,7 @@
   <div class="widget">
     <h3 class="widget-title">Categories</h3>
     <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -189,7 +189,7 @@
   <div class="widget">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/servlet/">servlet</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">4</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">4</span></li></ul>
     </div>
   </div>
 
@@ -199,7 +199,7 @@
   <div class="widget">
     <h3 class="widget-title">Archive</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">11</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 
@@ -211,6 +211,21 @@
     <div class="widget-body">
       <ul class="recent-post-list list-unstyled no-thumbnail">
         
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2017/12/22/servlet单例多线程机制/" class="title">servlet单例多线程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2017-12-22T11:30:44.000Z" itemprop="datePublished">2017-12-22</time>
+              </p>
+            </div>
+          </li>
+          
           <li>
             
             <div class="item-inner">
@@ -271,21 +286,6 @@
             </div>
           </li>
           
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/android/">android</a>
-              </p>
-              <p class="item-title">
-                <a href="/2017/12/15/glide缓存无法更新/" class="title">glide缓存无法更新</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2017-12-15T01:47:10.000Z" itemprop="datePublished">2017-12-15</time>
-              </p>
-            </div>
-          </li>
-          
       </ul>
     </div>
   </div>
@@ -327,7 +327,7 @@
         
   <span class="article-tag">
     <i class="fa fa-tag"></i>
-	<a class="article-tag-link" href="/tags/java-EE/">java EE</a>, <a class="article-tag-link" href="/tags/servlet/">servlet</a>
+	<a class="article-tag-link" href="/tags/java-EE/">java EE</a>
   </span>
 
 
@@ -422,6 +422,10 @@
   <div class="bar-inner">
   
   <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2017/12/22/servlet单例多线程机制/" title="servlet单例多线程"><i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;Newer</a>
+    </li>
     
     
     <li class="next">
