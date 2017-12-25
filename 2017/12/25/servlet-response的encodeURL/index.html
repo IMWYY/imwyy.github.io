@@ -16,15 +16,20 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>Category: 干货 | A Programmer</title>
-  <meta property="og:type" content="website">
-<meta property="og:title" content="stpehac的博客">
-<meta property="og:url" content="http://imwyy.github.io/categories/干货/index.html">
+  <title>servlet response的encodeURL | A Programmer</title>
+  <meta name="description" content="问题与解决初学servlet，一直没在意HttpServletResponse的encodeURL方法，所以服务器端返回地址的时候一直这么写的 123 &quot;&amp;lt;form action=\&quot;&quot; +  req.getContextPath()  + &quot;/\&quot; method=\&quot;post\&quot;&amp;gt;\n&quot; 直到运行的时候才发现，这里的请求没有发送到服务器端到相应servlet的doPost方法，但是浏">
+<meta name="keywords" content="java EE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="servlet response的encodeURL">
+<meta property="og:url" content="http://imwyy.github.io/2017/12/25/servlet-response的encodeURL/index.html">
 <meta property="og:site_name" content="stpehac的博客">
+<meta property="og:description" content="问题与解决初学servlet，一直没在意HttpServletResponse的encodeURL方法，所以服务器端返回地址的时候一直这么写的 123 &quot;&amp;lt;form action=\&quot;&quot; +  req.getContextPath()  + &quot;/\&quot; method=\&quot;post\&quot;&amp;gt;\n&quot; 直到运行的时候才发现，这里的请求没有发送到服务器端到相应servlet的doPost方法，但是浏">
+<meta property="og:updated_time" content="2017-12-25T06:20:06.769Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="stpehac的博客">
+<meta name="twitter:title" content="servlet response的encodeURL">
+<meta name="twitter:description" content="问题与解决初学servlet，一直没在意HttpServletResponse的encodeURL方法，所以服务器端返回地址的时候一直这么写的 123 &quot;&amp;lt;form action=\&quot;&quot; +  req.getContextPath()  + &quot;/\&quot; method=\&quot;post\&quot;&amp;gt;\n&quot; 直到运行的时候才发现，这里的请求没有发送到服务器端到相应servlet的doPost方法，但是浏">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://imwyy.github.io/categories/干货/index.html">
+  <link rel="canonical" href="http://imwyy.github.io/2017/12/25/servlet-response的encodeURL/index.html">
   
     <link rel="alternate" href="/atom.xml" title="stpehac的博客" type="application/atom+xml">
   
@@ -289,71 +294,200 @@
 </aside>
 
   
-  <main class="main" role="main">
-  <article class="content article article-categories article-type-list" itemscope="">
-    <header class="article-header">
-      <h1 itemprop="name" class="hidden-xs">Category: 干货</h1>
-      <p class="hidden-xs">Total 2 articles</p>
-      <nav role="navigation" id="nav-main" class="okayNav">
-        <ul>
-          <li><a href="/categories">All</a></li>
-          
-          <li><a href="/categories/小玩意/">小玩意</a></li>
-          
-          <li><a href="/categories/踩坑/">踩坑</a></li>
-          
-          <li><a href="/categories/android/">android</a></li>
-          
-          <li><a href="/categories/leetcode/">leetcode</a></li>
-          
-          <li><a href="/categories/java/">java</a></li>
-          
-          <li><a href="/categories/数据库/">数据库</a></li>
-          
-          <li><a href="/categories/干货/">干货</a></li>
-          
-        </ul>
-      </nav>
-    </header>
-    <!-- /header -->
-    <div class="article-body">
-      <div class="panel panel-default b-no">
-    <div class="panel-heading" role="tab">
-        <h4 class="panel-title">
-            <a data-toggle="collapse" href="#collapse干货" aria-expanded="true">
-              <i class="fa fa-folder-o text-active"></i><i class="fa fa-folder-open-o text"></i>
-              干货
-            </a>
-            <small class="text-muted">(Total 2 articles)</small>
-        </h4>
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-servlet-response的encodeURL" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      servlet response的encodeURL
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2017/12/25/servlet-response的encodeURL/" class="article-date">
+	  <time datetime="2017-12-25T05:59:24.000Z" itemprop="datePublished">2017-12-25</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="fa fa-folder"></i>
+    <a class="article-category-link" href="/categories/java/">java</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="fa fa-tag"></i>
+	<a class="article-tag-link" href="/tags/java-EE/">java EE</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="fa fa-eye" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2017/12/25/servlet-response的encodeURL/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 511(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 2(minutes)</span>
+	
+
+      </div>
+      
     </div>
-    <div id="collapse干货" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading干货">
-        <div class="panel-body">
-            <div class="collection">
-              
-                
-<a href="/2017/12/19/数据结构之树/" class="collection-item" target="_blank" itemprop="url">
-  <time datetime="2017-12-19T03:39:13.000Z" itemprop="datePublished">2017-12-19</time>
-  <span>&nbsp;&nbsp;&nbsp;</span> 数据结构之树
-</a>
+    <div class="article-entry markdown-body" itemprop="articleBody">
+      
+        <h3 id="问题与解决"><a href="#问题与解决" class="headerlink" title="问题与解决"></a>问题与解决</h3><p>初学servlet，一直没在意<code>HttpServletResponse</code>的<code>encodeURL</code>方法，所以服务器端返回地址的时候一直这么写的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> <span class="string">"&lt;form action=\""</span> +  </span><br><span class="line">req.getContextPath() </span><br><span class="line"> + <span class="string">"/\" method=\"post\"&gt;\n"</span></span><br></pre></td></tr></table></figure>
+<p>直到运行的时候才发现，这里的请求没有发送到服务器端到相应servlet的<code>doPost</code>方法，但是浏览器检查发现，表单的提交地址确实是对的啊。但是每次点击登录，页面不变，只是刷新了以下登录页面。（这里我 登录的get方法是返回静态页面，post方法是表单提交登录）。</p>
+<p>最后突然想起来课上提过一句<code>encodeURL</code>方法，改了以下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> <span class="string">"&lt;form action=\""</span> +  </span><br><span class="line">resp.encodeURL(req.getContextPath()) </span><br><span class="line"> + <span class="string">"/\" method=\"post\"&gt;\n"</span></span><br></pre></td></tr></table></figure>
+<p>再试一下，一切正常。</p>
+<p>网上搜索后，发现。原来<code>encodeURL</code>方法主要作用是跟踪session，</p>
+<blockquote>
+<p><strong>Java Servlet API 中提出了跟踪 Session 的另一种机制，如果客户端浏览器不支持 Cookie，Servlet 容器可以重写客户请求的 URL，把 Session ID 添加到 URL 信息中。</strong></p>
+<p><strong>HttpServletResponse 接口提供了重写 URL 的方法：public String encodeURL(java.lang.String url)<br>该方法的实现机制为</strong>： </p>
+<ul>
+<li>先判断当前的 Web 组件是否启用 Session，如果没有启用 Session，直接返回参数 url。 <ul>
+<li>再判断客户端浏览器是否支持 Cookie，如果支持 Cookie，直接返回参数 url；如果不支持 Cookie，就在参数 url 中加入 Session ID 信息，然后返回修改后的 url。 </li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>也就是说为了实现即使在客户端不支持cookie的情况下（我们都知道session机制的实现需要一般依靠cookie），也能够在通过在url后拼接sessionid的形式跟踪id。所以在用了<code>encodeURL</code>后，支持跟踪session，我写的登录自然也能成功了。</p>
+<h3 id="仍有的疑惑"><a href="#仍有的疑惑" class="headerlink" title="仍有的疑惑"></a>仍有的疑惑</h3><p>还是上面的例子。我写成这样，仍然可以正常运行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"&lt;form action=\"/login/\" method=\"post\"&gt;\n"</span></span><br></pre></td></tr></table></figure>
+<p>我将地址硬编码到html中，仍然可以正常运行，这是为什么？默认就是<code>encodeURL</code>后的路径吗？</p>
 
-
-              
-                
-<a href="/2017/12/11/干货/" class="collection-item" target="_blank" itemprop="url">
-  <time datetime="2017-12-11T06:39:36.000Z" itemprop="datePublished">2017-12-11</time>
-  <span>&nbsp;&nbsp;&nbsp;</span> 干货集
-</a>
-
-
-              
-            </div>
-        </div>
+      
     </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://imwyy.github.io/2017/12/25/servlet-response的encodeURL/" title="servlet response的encodeURL" target="_blank" rel="external">http://imwyy.github.io/2017/12/25/servlet-response的encodeURL/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
+        <div>我真的不会码代码。</div>
+      </div>
+    </figure>
+  </div>
 </div>
+
+
     </div>
   </article>
-   
+  
+    
+  <section id="comments">
+  	
+       
+    <div id="uyan_frame"></div>
+
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2017/12/23/java8新特性总结/" title="java8新特性总结">Older&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  
+  
+  <div class="bar-right">
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+  </div>
+  
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-tit">
+            <p>Thank you for your support, I will continue to work hard!</p>
+          </div>
+          <div class="donate-payimg">
+            <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+          </div>
+          <p class="text-muted mv">Scan this qrcode</p>
+          <div class="donate-payselect">
+            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
+                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="alipay" /></label>
+              </div>
+            </div>
+            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-weipay" value="weipay">
+                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="weipay" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="text-grey">
+            <p>Scan this qrcode, you can sweep yards reward oh!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 </main>
 
   <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
@@ -405,6 +539,12 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
 
     
+    
+        
+    
+    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+
+
     
     
 
