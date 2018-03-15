@@ -16,15 +16,23 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>Category: 小玩意 | A Programmer</title>
-  <meta property="og:type" content="website">
-<meta property="og:title" content="stpehac的博客">
-<meta property="og:url" content="http://imwyy.github.io/categories/小玩意/index.html">
+  <title>分布式事务的提交：二阶段提交 | A Programmer</title>
+  <meta name="description" content="分布式部署的多台机器中的数据保持一致性，那么就要保证在所有节点的数据写操作，要么全部都执行，要么全部的都不执行。但是，一台机器在执行本地事务的时候无法知道其他机器中的本地事务的执行结果。所以他也就不知道本次事务到底应该commit还是 rollback。所以，常规的解决办法就是引入“协调者”来统一调度所有分布式节点的执行。 使用基本事务？？基本事务有三个状态，分别是  激活态：启动事务后即进入激活">
+<meta name="keywords" content="数据库事务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式事务的提交：二阶段提交">
+<meta property="og:url" content="http://imwyy.github.io/2018/03/15/分布式事务的提交：二阶段和三阶段/index.html">
 <meta property="og:site_name" content="stpehac的博客">
+<meta property="og:description" content="分布式部署的多台机器中的数据保持一致性，那么就要保证在所有节点的数据写操作，要么全部都执行，要么全部的都不执行。但是，一台机器在执行本地事务的时候无法知道其他机器中的本地事务的执行结果。所以他也就不知道本次事务到底应该commit还是 rollback。所以，常规的解决办法就是引入“协调者”来统一调度所有分布式节点的执行。 使用基本事务？？基本事务有三个状态，分别是  激活态：启动事务后即进入激活">
+<meta property="og:image" content="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1521101628.png">
+<meta property="og:image" content="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1521103097.png">
+<meta property="og:updated_time" content="2018-03-15T08:52:28.802Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="stpehac的博客">
+<meta name="twitter:title" content="分布式事务的提交：二阶段提交">
+<meta name="twitter:description" content="分布式部署的多台机器中的数据保持一致性，那么就要保证在所有节点的数据写操作，要么全部都执行，要么全部的都不执行。但是，一台机器在执行本地事务的时候无法知道其他机器中的本地事务的执行结果。所以他也就不知道本次事务到底应该commit还是 rollback。所以，常规的解决办法就是引入“协调者”来统一调度所有分布式节点的执行。 使用基本事务？？基本事务有三个状态，分别是  激活态：启动事务后即进入激活">
+<meta name="twitter:image" content="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1521101628.png">
   <!-- Canonical links -->
-  <link rel="canonical" href="http://imwyy.github.io/categories/小玩意/index.html">
+  <link rel="canonical" href="http://imwyy.github.io/2018/03/15/分布式事务的提交：二阶段和三阶段/index.html">
   
     <link rel="alternate" href="/atom.xml" title="stpehac的博客" type="application/atom+xml">
   
@@ -289,67 +297,236 @@
 </aside>
 
   
-  <main class="main" role="main">
-  <article class="content article article-categories article-type-list" itemscope="">
-    <header class="article-header">
-      <h1 itemprop="name" class="hidden-xs">Category: 小玩意</h1>
-      <p class="hidden-xs">Total 1 articles</p>
-      <nav role="navigation" id="nav-main" class="okayNav">
-        <ul>
-          <li><a href="/categories">All</a></li>
-          
-          <li><a href="/categories/小玩意/">小玩意</a></li>
-          
-          <li><a href="/categories/踩坑/">踩坑</a></li>
-          
-          <li><a href="/categories/android/">android</a></li>
-          
-          <li><a href="/categories/shell/">shell</a></li>
-          
-          <li><a href="/categories/java/">java</a></li>
-          
-          <li><a href="/categories/leetcode/">leetcode</a></li>
-          
-          <li><a href="/categories/数据库/">数据库</a></li>
-          
-          <li><a href="/categories/算法/">算法</a></li>
-          
-          <li><a href="/categories/干货/">干货</a></li>
-          
-        </ul>
-      </nav>
-    </header>
-    <!-- /header -->
-    <div class="article-body">
-      <div class="panel panel-default b-no">
-    <div class="panel-heading" role="tab">
-        <h4 class="panel-title">
-            <a data-toggle="collapse" href="#collapse小玩意" aria-expanded="true">
-              <i class="fa fa-folder-o text-active"></i><i class="fa fa-folder-open-o text"></i>
-              小玩意
-            </a>
-            <small class="text-muted">(Total 1 articles)</small>
-        </h4>
-    </div>
-    <div id="collapse小玩意" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading小玩意">
-        <div class="panel-body">
-            <div class="collection">
-              
-                
-<a href="/2017/12/12/alfred的workflow/" class="collection-item" target="_blank" itemprop="url">
-  <time datetime="2017-12-12T07:58:41.000Z" itemprop="datePublished">2017-12-12</time>
-  <span>&nbsp;&nbsp;&nbsp;</span> alfred的workflow登录校园网，自制github图床
-</a>
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-分布式事务的提交：二阶段和三阶段" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      分布式事务的提交：二阶段提交
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2018/03/15/分布式事务的提交：二阶段和三阶段/" class="article-date">
+	  <time datetime="2018-03-15T07:56:32.000Z" itemprop="datePublished">2018-03-15</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="fa fa-folder"></i>
+    <a class="article-category-link" href="/categories/数据库/">数据库</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="fa fa-tag"></i>
+	<a class="article-tag-link" href="/tags/数据库事务/">数据库事务</a>
+  </span>
 
 
-              
-            </div>
-        </div>
+        
+	<span class="article-read hidden-xs">
+	    <i class="fa fa-eye" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2018/03/15/分布式事务的提交：二阶段和三阶段/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 1,133(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 4(minutes)</span>
+	
+
+      </div>
+      
     </div>
+    <div class="article-entry markdown-body" itemprop="articleBody">
+      
+        <p>分布式部署的多台机器中的数据保持一致性，那么就要保证在所有节点的数据写操作，要么全部都执行，要么全部的都不执行。但是，一台机器在执行本地事务的时候无法知道其他机器中的本地事务的执行结果。所以他也就不知道本次事务到底应该commit还是 rollback。所以，常规的解决办法就是引入“协调者”来统一调度所有分布式节点的执行。</p>
+<h3 id="使用基本事务？？"><a href="#使用基本事务？？" class="headerlink" title="使用基本事务？？"></a>使用基本事务？？</h3><p>基本事务有三个状态，分别是</p>
+<ul>
+<li>激活态：启动事务后即进入激活态 </li>
+<li>提交态：应用线程提交请求的结果就是激活态转到提交态</li>
+<li>中止态：应用线程回退或者因为系统的其他原因（崩溃、死锁等）导致事务从激活态转为中止态。</li>
+</ul>
+<p>三者转换图如下：</p>
+<p><img src="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1521101628.png" alt=""></p>
+<blockquote>
+<p>注意：事务的状态不能逆向转换</p>
+</blockquote>
+<p>显然，基本事务不能满足分布式环境事务提交的要求。</p>
+<p>举例说明，假如节点1本地事务T1给账号A余额加上100，节点2远端事务T2给账户A加上100。</p>
+<ul>
+<li>一种可能的做法：T1执行完成，提交事务，发一个消息通知远端T2事务提交。但是在这一刻，远端节点2有可能崩溃，则它在恢复时，会中止事务T2。</li>
+<li>另一种做法：先发一个消息给T2，让其提交事务。在收到成功提交的消息后，再提交T1。那么节点1可能在收到消息前崩溃，同样会在恢复时，会中止事务T1。</li>
+</ul>
+<p>所以继续在事务中添加一个新的状态“准备态“解决这个问题：</p>
+<p><img src="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1521103097.png" alt=""></p>
+<p>添加了准备态之后，事务恢复时，后可以继续提交，而不是直接进入中止态。有了这些，我们来看二阶段提交。</p>
+<h3 id="二阶段提交"><a href="#二阶段提交" class="headerlink" title="二阶段提交"></a>二阶段提交</h3><p>参与者将操作成败通知协调者，再由协调者根据所有参与者的反馈情报决定各参与者是否要提交操作还是中止操作。</p>
+<ol>
+<li><p>第一阶段：准备</p>
+<ul>
+<li>协调者节点向所有参与者节点询问是否可以执行提交操作，并等待各参与者节点的响应。</li>
+<li>参与者节点执行所有事务操作，并将Undo信息和Redo信息写入日志。</li>
+<li>参与者节点响应协调者节点发起的询问。如果参与者节点的事务操作实际执行成功，则它返回一个”成功”消息；否则它返回一个”失败”消息。</li>
+</ul>
+</li>
+<li><p>第二阶段：提交</p>
+<p> 如果第一阶段所有的参与者都回应“成功”：</p>
+<ul>
+<li>协调者节点向所有参与者节点发出”正式提交”的请求。</li>
+<li>参与者节点正式完成操作，并释放在整个事务期间内占用的资源。</li>
+<li>参与者节点向协调者节点发送”完成”消息。</li>
+<li><p>协调者节点受到所有参与者节点反馈的”完成”消息后，完成事务。</p>
+<p>如果第一阶段存在参与者回应“失败”：</p>
+</li>
+<li><p>协调者节点向所有参与者节点发出”回滚操作”的请求。</p>
+</li>
+<li>参与者节点利用之前写入的Undo信息执行回滚，并释放在整个事务期间内占用的资源。</li>
+<li>参与者节点向协调者节点发送”回滚完成”消息。</li>
+<li>协调者节点受到所有参与者节点反馈的”回滚完成”消息后，取消事务</li>
+</ul>
+</li>
+</ol>
+<p>这样可以做到所有事务都要么全部都执行，要么全部的都不执行。但是存在一些问题：</p>
+<ul>
+<li><p>事务阻塞问题：<br>  执行过程中，所有参与节点都是事务阻塞型的。当参与者占有公共资源时，其他第三方节点访问公共资源不得不处于阻塞状态。</p>
+</li>
+<li><p>死锁问题：<br>  同样因为阻塞问题，会出现两方事务各自拿着对方需要的数据，形成死锁。</p>
+</li>
+<li><p>单点故障。由于协调者的重要性，一旦协调者发生故障。参与者会一直阻塞下去。尤其在第二阶段，协调者发生故障，那么所有的参与者还都处于锁定事务资源的状态中，而无法继续完成事务操作。</p>
+</li>
+</ul>
+<p>针对这些问题，才会有三阶段提交。之后再研究。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://imwyy.github.io/2018/03/15/分布式事务的提交：二阶段和三阶段/" title="分布式事务的提交：二阶段提交" target="_blank" rel="external">http://imwyy.github.io/2018/03/15/分布式事务的提交：二阶段和三阶段/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
+        <div>我真的不会码代码。</div>
+      </div>
+    </figure>
+  </div>
 </div>
+
+
     </div>
   </article>
-   
+  
+    
+  <section id="comments">
+  	
+       
+    <div id="uyan_frame"></div>
+
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2018/03/13/leetcode之manacher算法/" title="leetcode之manacher算法">Older&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  
+  
+  <div class="bar-right">
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+  </div>
+  
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-tit">
+            <p>Thank you for your support, I will continue to work hard!</p>
+          </div>
+          <div class="donate-payimg">
+            <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+          </div>
+          <p class="text-muted mv">Scan this qrcode</p>
+          <div class="donate-payselect">
+            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
+                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="alipay" /></label>
+              </div>
+            </div>
+            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-weipay" value="weipay">
+                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="weipay" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="text-grey">
+            <p>Scan this qrcode, you can sweep yards reward oh!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 </main>
 
   <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
@@ -401,6 +578,12 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
 
     
+    
+        
+    
+    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+
+
     
     
 
