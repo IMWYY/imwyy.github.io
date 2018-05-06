@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>java并发编程之对象组合 | A Programmer</title>
+  <meta name="description" content="介绍可以通过对象组合构造一个满足需求的线程安全的类。笔记来自《java并发编程实战》 监视器模式（实例封闭）遵循java监视器模式的对象会把对象的所有可变状态都封装起来，并由对象自己的内置锁来保护。如： 12345678910public calss PrivateLock &amp;#123;	private final Object myLock = new Object();	Widget widg">
+<meta name="keywords" content="java并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java并发编程之对象组合">
+<meta property="og:url" content="http://imwyy.github.io/2018/05/04/java并发编程之对象组合/index.html">
+<meta property="og:site_name" content="stpehac的博客">
+<meta property="og:description" content="介绍可以通过对象组合构造一个满足需求的线程安全的类。笔记来自《java并发编程实战》 监视器模式（实例封闭）遵循java监视器模式的对象会把对象的所有可变状态都封装起来，并由对象自己的内置锁来保护。如： 12345678910public calss PrivateLock &amp;#123;	private final Object myLock = new Object();	Widget widg">
+<meta property="og:updated_time" content="2018-05-04T13:12:15.543Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java并发编程之对象组合">
+<meta name="twitter:description" content="介绍可以通过对象组合构造一个满足需求的线程安全的类。笔记来自《java并发编程实战》 监视器模式（实例封闭）遵循java监视器模式的对象会把对象的所有可变状态都封装起来，并由对象自己的内置锁来保护。如： 12345678910public calss PrivateLock &amp;#123;	private final Object myLock = new Object();	Widget widg">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://imwyy.github.io/2018/05/04/java并发编程之对象组合/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="stpehac的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/head.jpg" type="image/x-icon">
+  
+  <!-- font-awesome CSS -->
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  
+    
+    
+
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/IMWYY" target="_blank">
+          <img class="img-circle img-rotate" src="/images/head.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">stephen</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">What The f__k</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="fa fa-map-marker"></i> Nanjing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <!-- <span class="ins-close ins-selectable"><i class="fa fa-times"></i></span> -->
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav">
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/">
+            
+            <i class="fa fa-fw fa-dashboard"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="fa fa-fw fa-delicious"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-categories active">
+          <a href="/categories">
+            
+            <i class="fa fa-fw fa-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="fa fa-fw fa-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            
+            <p>您好，您是第<span id="busuanzi_value_site_uv">0</span>位访客</p>
+            
+            <div class="content">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/leetcode/">leetcode</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/shell/">shell</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发/">并发</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java并发/">java并发</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/">shell</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库事务/">数据库事务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库锁/">数据库锁</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">16</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/并发/">并发</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/java并发编程之DCL单例模式缺陷/" class="title">java并发编程之DCL单例模式与Happen-Before</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T12:47:56.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/java并发编程之原子变量和CAS/" class="title">java并发编程之原子变量和CAS</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T05:48:54.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/算法/">算法</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/你真的会二分查找吗？/" class="title">你真的会二分查找吗？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T02:50:19.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/04/java并发编程之lock和synchronize/" class="title">java并发编程之ReentrantLock和synchronized</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-04T13:13:48.000Z" itemprop="datePublished">2018-05-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/04/java并发编程之对象组合/" class="title">java并发编程之对象组合</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-04T13:12:03.000Z" itemprop="datePublished">2018-05-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-java并发编程之对象组合" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      java并发编程之对象组合
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2018/05/04/java并发编程之对象组合/" class="article-date">
+	  <time datetime="2018-05-04T13:12:03.000Z" itemprop="datePublished">2018-05-04</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="fa fa-folder"></i>
+    <a class="article-category-link" href="/categories/java/">java</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="fa fa-tag"></i>
+	<a class="article-tag-link" href="/tags/java并发/">java并发</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="fa fa-eye" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2018/05/04/java并发编程之对象组合/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 767(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 3(分)</span>
+	
+
+      </div>
+      
+    </div>
+    <div class="article-entry markdown-body" itemprop="articleBody">
+      
+        <p>介绍可以通过对象组合构造一个满足需求的线程安全的类。<br>笔记来自《java并发编程实战》</p>
+<h3 id="监视器模式（实例封闭）"><a href="#监视器模式（实例封闭）" class="headerlink" title="监视器模式（实例封闭）"></a>监视器模式（实例封闭）</h3><p>遵循java监视器模式的对象会把对象的所有可变状态都封装起来，并由对象自己的内置锁来保护。如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> calss PrivateLock &#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> Object myLock = <span class="keyword">new</span> Object();</span><br><span class="line">	Widget widget;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">someMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">synchronized</span>(myLock) &#123;</span><br><span class="line">			<span class="comment">//do something with widget</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="线程安全性委托"><a href="#线程安全性委托" class="headerlink" title="线程安全性委托"></a>线程安全性委托</h3><p>所谓线程安全性的委托，就是如果类的成员变量都是线程安全的，整个类的线程安全性可以委托给类的成员变量。当然至于委托后，这个对象是不是线程安全的，要“<strong>看情况而定</strong>”。</p>
+<ul>
+<li><p>当成员变量之间没有任何交互或者不变形条件约束的时候，那么这个类可以表现为线程安全。如：</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">VisualComponet</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> List&lt;Listener&gt; list = <span class="keyword">new</span> CopyOnWriteArrayList&lt;Listener&gt;();</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addListener</span><span class="params">(Listener listener)</span> </span>&#123;</span><br><span class="line">		list.add(listener);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>当状态变量之间存在着某些不变型条件的时候，委托失效，即类不是线程安全的。如：</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NumberRange</span> </span>&#123;</span><br><span class="line">	<span class="comment">//不变性条件为 lower &lt; upper</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger lower = <span class="keyword">new</span> AtomicInteger(<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger upper = <span class="keyword">new</span> AtomicInteger(<span class="number">0</span>);</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLower</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">if</span>	(i &lt;= upper.get()) &#123;</span><br><span class="line">			lower.set(i);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<pre><code>在`setLower`方法中，先检查再赋值，并不是原子性的，当然也会出现线程安全性的问题。
+</code></pre><h3 id="在现有线程安全类中添加功能"><a href="#在现有线程安全类中添加功能" class="headerlink" title="在现有线程安全类中添加功能"></a>在现有线程安全类中添加功能</h3><p>java类库中有许多有用的基础模块，应该优先选择重用这些现有的类而不是创建新的类。</p>
+<ul>
+<li><p>继承线程安全的类，实现一些附加的操作，如继承vector来“实现不存在就添加”的操作：</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BetterVector</span> <span class="keyword">extends</span> <span class="title">Vector</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">boolean</span> absent = ! contains(o);</span><br><span class="line">		<span class="keyword">if</span>	(absent) add(x)</span><br><span class="line">		<span class="keyword">return</span> absent;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>利用<code>Collections.synchronizedList()</code>实现</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ListHelper</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> List&lt;E&gt; list = <span class="keyword">new</span> Collections.synchronizedList(<span class="keyword">new</span> ArrayList&lt;&gt;);</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">	 	<span class="keyword">synchronized</span>(list) &#123;</span><br><span class="line">	 		<span class="keyword">boolean</span> absent = ! contains(o);</span><br><span class="line">			<span class="keyword">if</span>	(absent) add(x)</span><br><span class="line">			<span class="keyword">return</span> absent;</span><br><span class="line">	 	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  这里有个要注意的，<code>putIfAbsent</code>获取的锁是list的锁，如果简单粗暴的在<code>putIfAbsent</code>上加上synchronized，是有问题的，像这样</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@NotThreadSafe</span>  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BadListHelper</span> &lt;<span class="title">E</span>&gt; </span>&#123;  </span><br><span class="line">    <span class="keyword">public</span> List&lt;E&gt; list = Collections.synchronizedList(<span class="keyword">new</span> ArrayList&lt;E&gt;());  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(E x)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">boolean</span> absent = !list.contains(x);  </span><br><span class="line">        <span class="keyword">if</span> (absent)  </span><br><span class="line">            list.add(x);  </span><br><span class="line">        <span class="keyword">return</span> absent;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  这里的问题就是，synchronized所对应的锁和对list操作的锁不是同一把，你获取了BadListHelper的锁，但是没有获取list的锁，线程安全问题还是没有解决，别人还是可以在你执行<code>putIfAbsent</code>方法时，对list进行修改。</p>
+</li>
+<li><p>使用组合对象</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ImprovedList</span>&lt;<span class="title">E</span>&gt; <span class="keyword">implements</span> <span class="title">List</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> List&lt;E&gt; list;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ImprovedList</span><span class="params">(List&lt;E&gt; list)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.list = list;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(Object o)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">boolean</span> absent = ! contains(o);</span><br><span class="line">		<span class="keyword">if</span>	(absent) add(x)</span><br><span class="line">		<span class="keyword">return</span> absent;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这里涉及到了<code>Collections.synchronizedList()</code>和<code>CopyOnWriteArrayList</code>。关于这两个，看看源码研究研究区别，专门写篇博客。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://imwyy.github.io/2018/05/04/java并发编程之对象组合/" title="java并发编程之对象组合" target="_blank" rel="external">http://imwyy.github.io/2018/05/04/java并发编程之对象组合/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
+        <div>我真的不会码代码。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+       
+    <div id="uyan_frame"></div>
+
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/05/04/java并发编程之lock和synchronize/" title="java并发编程之ReentrantLock和synchronized"><i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;上一篇</a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/05/04/java并发编程之线程安全性和对象共享/" title="java并发编程之线程安全性和对象共享">下一篇&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  
+  
+  <div class="bar-right">
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+  </div>
+  
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-tit">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="donate-payimg">
+            <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+          </div>
+          <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+          <div class="donate-payselect">
+            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
+                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="支付宝" /></label>
+              </div>
+            </div>
+            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-weipay" value="weipay">
+                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="微信支付" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="text-grey">
+            <p>扫一扫，即可进行扫码打赏哦</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.js"></script>
+<script src="/js/application.js"></script>
+  
+    
+    
+    
+        <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+    
+    
+        
+<script defer src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+    
+    
+        
+    
+    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+
+
+    
+    
+
+
+
+</body>
+</html>

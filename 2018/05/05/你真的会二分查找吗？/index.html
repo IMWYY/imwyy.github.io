@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>你真的会二分查找吗？ | A Programmer</title>
+  <meta name="description" content="写这篇文章的初衷是因为leetcode遇到了一个坑。我们先一起来看看。 leetcode 34Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value. Your algorithm’s runtime comple">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你真的会二分查找吗？">
+<meta property="og:url" content="http://imwyy.github.io/2018/05/05/你真的会二分查找吗？/index.html">
+<meta property="og:site_name" content="stpehac的博客">
+<meta property="og:description" content="写这篇文章的初衷是因为leetcode遇到了一个坑。我们先一起来看看。 leetcode 34Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value. Your algorithm’s runtime comple">
+<meta property="og:updated_time" content="2018-05-05T05:18:04.819Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你真的会二分查找吗？">
+<meta name="twitter:description" content="写这篇文章的初衷是因为leetcode遇到了一个坑。我们先一起来看看。 leetcode 34Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value. Your algorithm’s runtime comple">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://imwyy.github.io/2018/05/05/你真的会二分查找吗？/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="stpehac的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/head.jpg" type="image/x-icon">
+  
+  <!-- font-awesome CSS -->
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  
+    
+    
+
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/IMWYY" target="_blank">
+          <img class="img-circle img-rotate" src="/images/head.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">stephen</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">What The f__k</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="fa fa-map-marker"></i> Nanjing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <!-- <span class="ins-close ins-selectable"><i class="fa fa-times"></i></span> -->
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav">
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/">
+            
+            <i class="fa fa-fw fa-dashboard"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="fa fa-fw fa-delicious"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-categories active">
+          <a href="/categories">
+            
+            <i class="fa fa-fw fa-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="fa fa-fw fa-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            
+            <p>您好，您是第<span id="busuanzi_value_site_uv">0</span>位访客</p>
+            
+            <div class="content">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/leetcode/">leetcode</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/shell/">shell</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发/">并发</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java并发/">java并发</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/">shell</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库事务/">数据库事务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库锁/">数据库锁</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">16</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/并发/">并发</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/java并发编程之DCL单例模式缺陷/" class="title">java并发编程之DCL单例模式与Happen-Before</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T12:47:56.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/java并发编程之原子变量和CAS/" class="title">java并发编程之原子变量和CAS</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T05:48:54.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/算法/">算法</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/你真的会二分查找吗？/" class="title">你真的会二分查找吗？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T02:50:19.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/04/java并发编程之lock和synchronize/" class="title">java并发编程之ReentrantLock和synchronized</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-04T13:13:48.000Z" itemprop="datePublished">2018-05-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/04/java并发编程之对象组合/" class="title">java并发编程之对象组合</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-04T13:12:03.000Z" itemprop="datePublished">2018-05-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-你真的会二分查找吗？" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      你真的会二分查找吗？
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2018/05/05/你真的会二分查找吗？/" class="article-date">
+	  <time datetime="2018-05-05T02:50:19.000Z" itemprop="datePublished">2018-05-05</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="fa fa-folder"></i>
+    <a class="article-category-link" href="/categories/算法/">算法</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="fa fa-tag"></i>
+	<a class="article-tag-link" href="/tags/算法/">算法</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="fa fa-eye" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2018/05/05/你真的会二分查找吗？/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 1,647(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 7(分)</span>
+	
+
+      </div>
+      
+    </div>
+    <div class="article-entry markdown-body" itemprop="articleBody">
+      
+        <p>写这篇文章的初衷是因为leetcode遇到了一个坑。我们先一起来看看。</p>
+<h2 id="leetcode-34"><a href="#leetcode-34" class="headerlink" title="leetcode 34"></a>leetcode 34</h2><p>Given an array of integers nums sorted in ascending order, find the starting and ending position of a given target value.</p>
+<p>Your algorithm’s runtime complexity must be in the order of O(log n).</p>
+<p>If the target is not found in the array, return [-1, -1].</p>
+<p>Example 1:Input: nums = [5,7,7,8,8,10], target = 8<br>Output: [3,4]</p>
+<p>Example 2:Input: nums = [5,7,7,8,8,10], target = 6<br>Output: [-1,-1]</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><p>要求算法复杂度为O(log n)。很显然，肯定是二分查找。二分查找到target然后在两边扩展找边界呗。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] searchRange(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.length == <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;-<span class="number">1</span>, -<span class="number">1</span>&#125;;</span><br><span class="line">    <span class="keyword">int</span> left = <span class="number">0</span>, right = nums.length - <span class="number">1</span>, mid;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">        mid = (left + right)/ <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &lt; target) &#123;</span><br><span class="line">            left = mid;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nums[mid] &gt; target)&#123;</span><br><span class="line">            right = mid;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        	  left = mid; </span><br><span class="line">        	  right = mid;</span><br><span class="line">        	  <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nums[left] != target) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;-<span class="number">1</span>, -<span class="number">1</span>&#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">while</span> (left - <span class="number">1</span> &gt;= <span class="number">0</span> &amp;&amp; nums[left - <span class="number">1</span>] == target) left--;</span><br><span class="line">        <span class="keyword">while</span> (right + <span class="number">1</span> &lt; nums.length &amp;&amp; nums[right + <span class="number">1</span>] == target) right++;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;left, right&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后拿个测试[5, 7, 7, 8, 8, 10]， target6 用例跑一下。WTF？死循环？？</p>
+<h2 id="问题在哪？"><a href="#问题在哪？" class="headerlink" title="问题在哪？"></a>问题在哪？</h2><p>很困惑，之前一直这么写，没出过问题，怎么会死循环。那我就跟着代码走一遍看看。</p>
+<p>数组[5, 7, 7, 8, 8, 10]， target 6</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">left</th>
+<th style="text-align:center">right</th>
+<th style="text-align:center">mid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+</tr>
+</tbody>
+</table>
+<p>找到了问题。left=0，right=1， mid=0的时候，nums[left]=5, nums[right]=7,nums[mid]=5在如下代码里，会一直执行if的第一个分支，三个值都不会改变。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (nums[mid] &lt;= target) &#123;</span><br><span class="line">    left = mid;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    right = mid;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而<strong>left = mid;</strong>才是罪魁祸首，如果这么写了，一旦target元素不在数组，那么就是死循环。所以应该改成<strong>left = mid + 1;</strong>。这样就顺利通过test case。总结起来，这个错误更是因为自己的疏忽。</p>
+<h2 id="还可能有什么问题？"><a href="#还可能有什么问题？" class="headerlink" title="还可能有什么问题？"></a>还可能有什么问题？</h2><ol>
+<li><p>mid的选取</p>
+<p> 代码中我写的是<code>mid = (left + right)/ 2;</code>，但其实是有问题的，问题在于如果left和right都很大，那么两者相加是很可能溢出的。所以最好的写法应该是<code>mid = left + (right - left)/ 2;</code></p>
+</li>
+<li><p>left和right怎么跳?</p>
+<p> 这问题也是我最初出现死循环的原因。我把<code>left = mid</code>改成了<code>left = mid + 1</code>，为什么不把<code>right = mid</code>也改成<code>right = mid - 1</code>呢。在这里当然也是可以的，因为我只是想在数组里找到一个等于target的值的下标。</p>
+</li>
+</ol>
+<p><strong>验证一下我的结论</strong>，我们来看一下jdk里面对于二分查找的实现。在<code>Arrays</code>这个类里面。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Like public version, but without range checks.</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">binarySearch0</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span> fromIndex, <span class="keyword">int</span> toIndex, <span class="keyword">int</span> key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> low = fromIndex;</span><br><span class="line">    <span class="keyword">int</span> high = toIndex - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (low &lt;= high) &#123;</span><br><span class="line">        <span class="keyword">int</span> mid = (low + high) &gt;&gt;&gt; <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> midVal = a[mid];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (midVal &lt; key)</span><br><span class="line">            low = mid + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (midVal &gt; key)</span><br><span class="line">            high = mid - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> mid; <span class="comment">// key found</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>没错这里确实是，<code>low = mid + 1</code>和<code>high = mid - 1</code>。但是前面mid的选取好像和我说的有点冲突。</p>
+<p><code>int mid = (low + high) &gt;&gt;&gt; 1</code>。这里&gt;&gt;&gt;是指无符号右移，高位补0，而这里的low、high都是非负数，用这个应该只是一个防御性的编程。</p>
+<blockquote>
+<p>（计算机移位操作的效率要高很多，jdk里面很多用到了移位，如<code>ArrayList</code>、<code>HashMap</code>等等）</p>
+</blockquote>
+<p>low和high直接相加，难道jdk没有考虑溢出的情况吗？其实不是，Java里数组的长度是有限制的，这个限制具体是由jvm可配置的（？）,我查看源码没有找到具体值是多少，至少当我执行<code>int[] test = new int[Integer.MAX_VALUE/2];</code>的时候，会报OutOfMemoryError错。既然这样也就不用考虑溢出问题，直接用移位操作反而更快。</p>
+<h2 id="更多情况"><a href="#更多情况" class="headerlink" title="更多情况"></a>更多情况</h2><p>上面讨论的都是标准的二分查找，也就是在一个数组里找一个数的下标，找不到返回负数。其实还会经常遇到另一种，就是找到第一次出现该数的下标，或者最后一次出现该数的下标。显然jdk里的<code>binarySearch</code>并不能实现这个要求，java doc里面也有明说</p>
+<blockquote>
+<p>Searches the specified array of ints for the specified value using thebinary search algorithm. <strong>If the array contains multiple elements with the specified value, there is no guarantee which one will be found.</strong></p>
+</blockquote>
+<p>对于”查找第一次出现该数的下标”，我们可以理解成二分查找就是left不断往后走，找到目标位置的过程（最终结果肯定是left的值）。所以为了不出错，我们最好每次移动只改变left。</p>
+<p>而对于“查找最后一次出现该数的下标”可以看作是“查找第一次出现该数的下标“的镜像，可以理解为后从往前进行二分查找（把数组反转就是求解第一种情况了），<strong>所以在mid选取的时候，要反一反<code>mid = right - ((right-left)&gt;&gt; 1)</code></strong></p>
+<blockquote>
+<p>看到很多地方的写法都是<code>mid = left + ((right-left + 1)&gt;&gt; 1);</code>，这样反而不好理解。写成<code>mid = right - ((right-left)&gt;&gt; 1)</code>就好理解多了。</p>
+</blockquote>
+<ol>
+<li><p>二分查找第一次出现该数的下标</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">    mid = left + ((right-left)&gt;&gt; <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nums[mid] &lt; target) &#123;	</span><br><span class="line">    <span class="comment">// 如果中间值比target小，left移到mid+1</span></span><br><span class="line">        left = mid + <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 如果中间值不比target小即可能等于，right移到mid</span></span><br><span class="line">        right = mid;</span><br><span class="line">    &#125; 	</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>二分查找最后一次出现该数的下标</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">    mid = right - ((right-left)&gt;&gt; <span class="number">1</span>);<span class="comment">//注意这里！！</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nums[mid] &lt;= target) &#123;	</span><br><span class="line">    <span class="comment">// 如果中间值小于等于target即不比target大，left移到mid 因为left的目标是和target相等的最后一个下标</span></span><br><span class="line">        left = mid;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 如果中间值比target大，right移到mid-1</span></span><br><span class="line">        right = mid -<span class="number">1</span> ;</span><br><span class="line">    &#125; 	</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="完善"><a href="#完善" class="headerlink" title="完善"></a>完善</h2><p>仔细看看自己的解法，最后那个while循环有点问题，如果这个范围很大，那岂不是要循环整个数组了？</p>
+<p>所以有了前面的铺垫，这个题目可以用更快更清晰的方法解决。<strong>分别找到target的第一次和最后一次出现的位置即可</strong>。最后附上代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] searchRange(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nums.length == <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;-<span class="number">1</span>, -<span class="number">1</span>&#125;;</span><br><span class="line">    <span class="keyword">int</span> left = <span class="number">0</span>, right = nums.length - <span class="number">1</span>, first;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//找到第一次出现的位置</span></span><br><span class="line">    <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="keyword">int</span> mid = left + ((right - left) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &lt; target) &#123;</span><br><span class="line">            left = mid + <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (nums[left] != target) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;-<span class="number">1</span>, -<span class="number">1</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    first = left;</span><br><span class="line"></span><br><span class="line">    left = <span class="number">0</span>;</span><br><span class="line">    right = nums.length - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//找到最后一次出现的位置</span></span><br><span class="line">    <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="keyword">int</span> mid = right - ((right - left) &gt;&gt; <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (nums[mid] &lt;= target) &#123;</span><br><span class="line">            left = mid;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;first, left&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://imwyy.github.io/2018/05/05/你真的会二分查找吗？/" title="你真的会二分查找吗？" target="_blank" rel="external">http://imwyy.github.io/2018/05/05/你真的会二分查找吗？/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
+        <div>我真的不会码代码。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+       
+    <div id="uyan_frame"></div>
+
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/05/05/java并发编程之原子变量和CAS/" title="java并发编程之原子变量和CAS"><i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;上一篇</a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/05/04/java并发编程之lock和synchronize/" title="java并发编程之ReentrantLock和synchronized">下一篇&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  
+  
+  <div class="bar-right">
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+  </div>
+  
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-tit">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="donate-payimg">
+            <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+          </div>
+          <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+          <div class="donate-payselect">
+            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
+                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="支付宝" /></label>
+              </div>
+            </div>
+            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-weipay" value="weipay">
+                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="微信支付" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="text-grey">
+            <p>扫一扫，即可进行扫码打赏哦</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.js"></script>
+<script src="/js/application.js"></script>
+  
+    
+    
+    
+        <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+    
+    
+        
+<script defer src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+    
+    
+        
+    
+    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+
+
+    
+    
+
+
+
+</body>
+</html>

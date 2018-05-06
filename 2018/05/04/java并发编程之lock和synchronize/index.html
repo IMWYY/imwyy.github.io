@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>java并发编程之ReentrantLock和synchronized | A Programmer</title>
+  <meta name="description" content="在jdk5之前，协调共享对象访问的只有synchronized和lock，jdk增加了一种新的锁机制：ReentrantLock。lock并不是对内置锁的替换，而是互补。这篇文章主要循序渐进的比较两者异同和适用场景，如果有理解错的地方希望大家能指出。 synchronized怎么实现的？synchronized是Java中解决并发问题的一种最常用最简单的一种方法，有效满足了线程安全的三大要求：原子">
+<meta name="keywords" content="java并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java并发编程之ReentrantLock和synchronized">
+<meta property="og:url" content="http://imwyy.github.io/2018/05/04/java并发编程之lock和synchronize/index.html">
+<meta property="og:site_name" content="stpehac的博客">
+<meta property="og:description" content="在jdk5之前，协调共享对象访问的只有synchronized和lock，jdk增加了一种新的锁机制：ReentrantLock。lock并不是对内置锁的替换，而是互补。这篇文章主要循序渐进的比较两者异同和适用场景，如果有理解错的地方希望大家能指出。 synchronized怎么实现的？synchronized是Java中解决并发问题的一种最常用最简单的一种方法，有效满足了线程安全的三大要求：原子">
+<meta property="og:updated_time" content="2018-05-04T16:21:23.392Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java并发编程之ReentrantLock和synchronized">
+<meta name="twitter:description" content="在jdk5之前，协调共享对象访问的只有synchronized和lock，jdk增加了一种新的锁机制：ReentrantLock。lock并不是对内置锁的替换，而是互补。这篇文章主要循序渐进的比较两者异同和适用场景，如果有理解错的地方希望大家能指出。 synchronized怎么实现的？synchronized是Java中解决并发问题的一种最常用最简单的一种方法，有效满足了线程安全的三大要求：原子">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://imwyy.github.io/2018/05/04/java并发编程之lock和synchronize/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="stpehac的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/head.jpg" type="image/x-icon">
+  
+  <!-- font-awesome CSS -->
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  
+    
+    
+
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/IMWYY" target="_blank">
+          <img class="img-circle img-rotate" src="/images/head.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">stephen</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">What The f__k</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="fa fa-map-marker"></i> Nanjing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <!-- <span class="ins-close ins-selectable"><i class="fa fa-times"></i></span> -->
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav">
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/">
+            
+            <i class="fa fa-fw fa-dashboard"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="fa fa-fw fa-delicious"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-categories active">
+          <a href="/categories">
+            
+            <i class="fa fa-fw fa-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="fa fa-fw fa-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            
+            <p>您好，您是第<span id="busuanzi_value_site_uv">0</span>位访客</p>
+            
+            <div class="content">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/leetcode/">leetcode</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/shell/">shell</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发/">并发</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java并发/">java并发</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/">shell</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库事务/">数据库事务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库锁/">数据库锁</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">16</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/并发/">并发</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/java并发编程之DCL单例模式缺陷/" class="title">java并发编程之DCL单例模式与Happen-Before</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T12:47:56.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/java并发编程之原子变量和CAS/" class="title">java并发编程之原子变量和CAS</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T05:48:54.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/算法/">算法</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/你真的会二分查找吗？/" class="title">你真的会二分查找吗？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T02:50:19.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/04/java并发编程之lock和synchronize/" class="title">java并发编程之ReentrantLock和synchronized</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-04T13:13:48.000Z" itemprop="datePublished">2018-05-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/04/java并发编程之对象组合/" class="title">java并发编程之对象组合</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-04T13:12:03.000Z" itemprop="datePublished">2018-05-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-java并发编程之lock和synchronize" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      java并发编程之ReentrantLock和synchronized
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2018/05/04/java并发编程之lock和synchronize/" class="article-date">
+	  <time datetime="2018-05-04T13:13:48.000Z" itemprop="datePublished">2018-05-04</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="fa fa-folder"></i>
+    <a class="article-category-link" href="/categories/java/">java</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="fa fa-tag"></i>
+	<a class="article-tag-link" href="/tags/java并发/">java并发</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="fa fa-eye" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2018/05/04/java并发编程之lock和synchronize/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 1,087(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 4(分)</span>
+	
+
+      </div>
+      
+    </div>
+    <div class="article-entry markdown-body" itemprop="articleBody">
+      
+        <p>在jdk5之前，协调共享对象访问的只有synchronized和lock，jdk增加了一种新的锁机制：ReentrantLock。lock并不是对内置锁的替换，而是互补。这篇文章主要循序渐进的比较两者异同和适用场景，如果有理解错的地方希望大家能指出。</p>
+<h2 id="synchronized怎么实现的？"><a href="#synchronized怎么实现的？" class="headerlink" title="synchronized怎么实现的？"></a>synchronized怎么实现的？</h2><p>synchronized是Java中解决并发问题的一种最常用最简单的一种方法，有效满足了线程安全的三大要求：原子性、可见性和有序性。</p>
+<p>synchronized可以用在三个地方：</p>
+<ul>
+<li>修饰普通方法。<strong>锁的是实例对象</strong>。</li>
+<li>修饰静态方法。<strong>锁的是类</strong>。</li>
+<li>修饰代码块。锁的是<strong>括号内的对象</strong>。</li>
+</ul>
+<p>synchronized是依靠对象头中一个monitor（监视器锁）。执行synchronized修饰的方法或者代码块的时候，会首先去尝试获取这个monitor，如果monitor获取成功，那么就可以执行。否则就必须等待，一直到可以获取monitor。<strong>synchronized的可重入性也就好解释了，如果一个线程已经获取monitor，再次获取会将计数器加一，而不用再去等待锁。退出的时候计数器会减1，当减到0的时候，就可以唤醒其他等待的线程</strong>。当然这些实现JVM都已经帮我们打理好了，所以我们会觉得synchronized用起来非常简单。</p>
+<h2 id="为什么要用ReentrantLock？"><a href="#为什么要用ReentrantLock？" class="headerlink" title="为什么要用ReentrantLock？"></a>为什么要用ReentrantLock？</h2><p>前面介绍了synchronized，使用方便简单。所谓成也萧何败也萧何，太简单了就会有一些问题：</p>
+<ul>
+<li>无法中断一个已经正在等待获取锁的线程。如果一个线程一直没法获取锁，就会一直等待下去。ReentrantLock可以使用中断和定时锁，等待一定时间如果没有获取就返回。</li>
+<li>无法对加锁规则进行改动，无法实现非阻塞结构的加锁规则。</li>
+<li>synchronized如果遇到死锁问题，恢复的解决方案就是重新启动程序。</li>
+<li>很多场景，读与读并不需要互斥，而synchronized粗暴的将所有操作都互斥。ReadWriteLock可以实现读-写锁，使用两个Lock对象，一个负责读一个负责写。</li>
+<li>synchronized是非公平锁，无法适应需要公平锁的场景。ReentrantLock分为公平锁和非公平锁。</li>
+</ul>
+<blockquote>
+<p>所谓公平锁就是每次唤醒的时候，按照FCFS原则唤醒等待队列中的线程。而非公平锁是唤醒的时候，其他等待的线程一起去抢锁，后来的线程可能比先到的线程要先拿到锁，<strong>可以插队，这也就是非公平的体现</strong>。</p>
+<p><strong>在激烈竞争的情况下，非公平锁的性能高于公平性</strong>，是因为插队可以带来吞吐量的提升。举例来说，线程A持有锁，线程B在等待锁。此时线程A是释放锁，B将被唤醒，然后尝试获取锁。此时线程C很可能在C没有被完全唤醒之前获取这个锁，锁被更早的获得了，当然也就提高了吞吐量。</p>
+</blockquote>
+<p>相对应的ReentrantLock的特点就是：</p>
+<ul>
+<li>可中断，可定时，缓解了死锁的问题。</li>
+<li>公平锁，可以实现线程先来的先获取锁</li>
+<li>可以有ReadWriteLock实现读写锁，读与读不必互斥。</li>
+</ul>
+<p>总结一句就是，synchronized不够灵活，这也是ReentrantLock出现的原因。一个很好的例子就是锁分段技术，比如在<code>ConcurrentHashMap</code>中是划分segment来将锁分段，提高并发环境下的性能，而源码中就是用的ReenterantLock。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Stripped-down version of helper class used in previous version,</span></span><br><span class="line"><span class="comment"> * declared for the sake of serialization compatibility</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Segment</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">ReentrantLock</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">2249069246763182397L</span>;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> loadFactor;</span><br><span class="line">    Segment(<span class="keyword">float</span> lf) &#123; <span class="keyword">this</span>.loadFactor = lf; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="什么时候用ReentrantLock，什么时候用synchronized？"><a href="#什么时候用ReentrantLock，什么时候用synchronized？" class="headerlink" title="什么时候用ReentrantLock，什么时候用synchronized？"></a>什么时候用ReentrantLock，什么时候用synchronized？</h2><p>ReentrantLock带来了使用的灵活性的代价就是，你需要仔细负责lock的操作，比如unlock，加锁就有释放，用起来自然就没有synchronized那么省心。</p>
+<p>synchronized在java6有了一些升级，所以两者的性能事实上差距不大。所以私以为，如果需要对锁操作或者等待队列有着更高的灵活性或者需要锁是公平的，使用ReentrantLock。否则使用synchronized足矣。</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://imwyy.github.io/2018/05/04/java并发编程之lock和synchronize/" title="java并发编程之ReentrantLock和synchronized" target="_blank" rel="external">http://imwyy.github.io/2018/05/04/java并发编程之lock和synchronize/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
+        <div>我真的不会码代码。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+       
+    <div id="uyan_frame"></div>
+
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/05/05/你真的会二分查找吗？/" title="你真的会二分查找吗？"><i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;上一篇</a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/05/04/java并发编程之对象组合/" title="java并发编程之对象组合">下一篇&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  
+  
+  <div class="bar-right">
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+  </div>
+  
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-tit">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="donate-payimg">
+            <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+          </div>
+          <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+          <div class="donate-payselect">
+            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
+                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="支付宝" /></label>
+              </div>
+            </div>
+            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-weipay" value="weipay">
+                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="微信支付" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="text-grey">
+            <p>扫一扫，即可进行扫码打赏哦</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.js"></script>
+<script src="/js/application.js"></script>
+  
+    
+    
+    
+        <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+    
+    
+        
+<script defer src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+    
+    
+        
+    
+    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+
+
+    
+    
+
+
+
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>java并发编程之DCL单例模式与Happen-Before | A Programmer</title>
+  <meta name="description" content="本来想写一篇文章说说DCL的缺陷顺带说一下JMM，看到有一篇文章写的不错，就直接转过来修改了一下。原文出处在这里。 1 前言单例模式是我们经常使用的一种模式，一般来说很多资料都建议我们写成如下的模式： 1234567891011121314151617181920212223242526public class Instance &amp;#123;    private String str = &quot;&quot;;">
+<meta name="keywords" content="并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java并发编程之DCL单例模式与Happen-Before">
+<meta property="og:url" content="http://imwyy.github.io/2018/05/05/java并发编程之DCL单例模式缺陷/index.html">
+<meta property="og:site_name" content="stpehac的博客">
+<meta property="og:description" content="本来想写一篇文章说说DCL的缺陷顺带说一下JMM，看到有一篇文章写的不错，就直接转过来修改了一下。原文出处在这里。 1 前言单例模式是我们经常使用的一种模式，一般来说很多资料都建议我们写成如下的模式： 1234567891011121314151617181920212223242526public class Instance &amp;#123;    private String str = &quot;&quot;;">
+<meta property="og:image" content="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1525524356.png">
+<meta property="og:updated_time" content="2018-05-05T13:06:13.291Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java并发编程之DCL单例模式与Happen-Before">
+<meta name="twitter:description" content="本来想写一篇文章说说DCL的缺陷顺带说一下JMM，看到有一篇文章写的不错，就直接转过来修改了一下。原文出处在这里。 1 前言单例模式是我们经常使用的一种模式，一般来说很多资料都建议我们写成如下的模式： 1234567891011121314151617181920212223242526public class Instance &amp;#123;    private String str = &quot;&quot;;">
+<meta name="twitter:image" content="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1525524356.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://imwyy.github.io/2018/05/05/java并发编程之DCL单例模式缺陷/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="stpehac的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/head.jpg" type="image/x-icon">
+  
+  <!-- font-awesome CSS -->
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  
+    
+    
+
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/IMWYY" target="_blank">
+          <img class="img-circle img-rotate" src="/images/head.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">stephen</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">What The f__k</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="fa fa-map-marker"></i> Nanjing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <!-- <span class="ins-close ins-selectable"><i class="fa fa-times"></i></span> -->
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav">
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/">
+            
+            <i class="fa fa-fw fa-dashboard"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="fa fa-fw fa-delicious"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-categories active">
+          <a href="/categories">
+            
+            <i class="fa fa-fw fa-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="fa fa-fw fa-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            
+            <p>您好，您是第<span id="busuanzi_value_site_uv">0</span>位访客</p>
+            
+            <div class="content">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/leetcode/">leetcode</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/shell/">shell</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发/">并发</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java并发/">java并发</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/">shell</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库事务/">数据库事务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库锁/">数据库锁</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">16</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/并发/">并发</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/java并发编程之DCL单例模式缺陷/" class="title">java并发编程之DCL单例模式与Happen-Before</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T12:47:56.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/java并发编程之原子变量和CAS/" class="title">java并发编程之原子变量和CAS</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T05:48:54.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/算法/">算法</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/05/你真的会二分查找吗？/" class="title">你真的会二分查找吗？</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-05T02:50:19.000Z" itemprop="datePublished">2018-05-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/04/java并发编程之lock和synchronize/" class="title">java并发编程之ReentrantLock和synchronized</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-04T13:13:48.000Z" itemprop="datePublished">2018-05-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/java/">java</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/04/java并发编程之对象组合/" class="title">java并发编程之对象组合</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-04T13:12:03.000Z" itemprop="datePublished">2018-05-04</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-java并发编程之DCL单例模式缺陷" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      java并发编程之DCL单例模式与Happen-Before
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2018/05/05/java并发编程之DCL单例模式缺陷/" class="article-date">
+	  <time datetime="2018-05-05T12:47:56.000Z" itemprop="datePublished">2018-05-05</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="fa fa-folder"></i>
+    <a class="article-category-link" href="/categories/并发/">并发</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="fa fa-tag"></i>
+	<a class="article-tag-link" href="/tags/并发/">并发</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="fa fa-eye" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2018/05/05/java并发编程之DCL单例模式缺陷/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 1,423(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 5(分)</span>
+	
+
+      </div>
+      
+    </div>
+    <div class="article-entry markdown-body" itemprop="articleBody">
+      
+        <p>本来想写一篇文章说说DCL的缺陷顺带说一下JMM，看到有一篇文章写的不错，就直接转过来修改了一下。原文出处在<a href="https://blog.csdn.net/qiyei2009/article/details/71813069" target="_blank" rel="noopener">这里</a>。</p>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1 前言"></a>1 前言</h2><p>单例模式是我们经常使用的一种模式，一般来说很多资料都建议我们写成如下的模式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Instance</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String str = <span class="string">""</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Instance ins = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 构造方法私有化</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Instance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        str = <span class="string">"hello"</span>;</span><br><span class="line">        a = <span class="number">20</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * DCL方式获取单例</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Instance <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (ins == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Instance.class)&#123;</span><br><span class="line">                ins = <span class="keyword">new</span> Instance();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ins;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是这种方式其实是有缺陷的，具体什么缺陷呢？我们首先要了解JVM了内存模型，请看下面分析</p>
+<h2 id="2-JVM内存模型"><a href="#2-JVM内存模型" class="headerlink" title="2 JVM内存模型"></a>2 JVM内存模型</h2><p>JVM模型如下图：<br><img src="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1525524356.png" alt=""></p>
+<p>这里着重介绍下VM Stack,其他的我相信都比较熟悉。<br>VM Stack是线程私有的区域。他是java方法执行时的字典：它里面记录了局部变量表、 操作数栈、 动态链接、 方法出口等信息。</p>
+<p>在《java虚拟机规范》一书中对这部分的描述如下：</p>
+<p>栈帧是用来存储数据和部分过程结果的数据结构，同时也被用来处理动态链接、方法返回值和异常分派。 </p>
+<p>栈帧随着方法调用而创建，随着方法结束而销毁——无论方法是正常完成还是异常完成（抛出了在方法内未被捕获的异常）都算作方法结束。<br>栈帧的存储空间分配在 Java 虚拟机栈之中，每一个栈帧都有自己的局部变量表、操作数栈和指向当前方法所属的类的运行时常量池的引用。</p>
+<p>java中某个线程在访问堆中的线程共享变量时，为了加快访问速度，提升效率，会把该变量临时拷贝一份到自己的VM Stack中，并保持和堆中数据的同步。</p>
+<h2 id="3-传统DCL方式的缺陷"><a href="#3-传统DCL方式的缺陷" class="headerlink" title="3 传统DCL方式的缺陷"></a>3 传统DCL方式的缺陷</h2><p>有了以上的基础知识我们就可以知道DCL方式的缺陷在哪儿了。</p>
+<p>当线程A在获取了Instance.class锁时，对ins进行 ins = new Instance() 初始化时，由于这是很多条指令，jvm可能会乱序执行。这个时候如果线程B在执行if (ins == null)时，正常情况下，如果为true，说明需要获取Instance.class锁，等待初始化。但是这时候，假设线程A再没有对ins进行初始化完，比如只对str进行了赋值，还没有来的及对a进行赋值，假如jvm将未完成赋值的值拷贝回堆中，这个时候线程B有可能读到的值就不是为null了，就会造成数据丢失的情况。这时候我们发现线程B获取的对象中a的值是0，而不是20。</p>
+<p><strong>总结起来：对ins的写操作不 happen-before 对它的读操作</strong></p>
+<p>这就是DCL方式的缺陷，那么怎么避免呢？</p>
+<h2 id="4-happen-before原则"><a href="#4-happen-before原则" class="headerlink" title="4 happen-before原则"></a>4 happen-before原则</h2><p>JMM为程序中所有的操作定义了一个偏序关系，成为Happen-Before。<strong>要想保证执行操作B的线程看到线程A的结果，那么A和B之间必须满足Happen-Before规则</strong>。</p>
+<p>当一个变量被多个线程读取并且至少被一个线程写入时，如果在读操作和写操作之间没有依照Happen-Before来排序，那么就会产生数据竞争的问题。</p>
+<p>具体来说，happen-before规则包括：</p>
+<ol>
+<li><strong>程序顺序规则</strong>：如果程序中操作A在操作B之前，那么B操作可以看到A操作的所有内存改变。</li>
+<li><strong>监视器锁规则</strong>：如果线程1解锁了monitor A，接着线程2锁定了A，那么，线程1解锁A之前的写操作都对线程2可见（线程1和线程2可以是同一个线程）。</li>
+<li><strong>volatile变量规则</strong>：如果线程1写入了volatile变量V，接着线程2读取了V，那么，线程1写入V及之前的写操作都对线程2可见（线程1和线程2可以是同一个线程）</li>
+<li><strong>线程启动规则</strong>：在线程上对Thread.start的调用必须在该线程中执行任何操作之前执行。</li>
+<li><strong>线程结束规则</strong>：线程中的任何操作都必须在其他线程检测到线程A已经结束（或者从Thread.join中成功返回，或者在调用Thread.isAlive时返回false）之前执行完成。</li>
+<li><strong>中断规则</strong>：当一个线程在另一个线程上调用interrupt时，必须在被中断线程检测到interrupt调用之前执行（通过抛出InterruptedException，或者调用isInterrupted和interrupted）。</li>
+<li><strong>终结器规则</strong>：对象的构造函数必须在启动该对象的终结器之前执行完成。</li>
+<li><strong>传递性</strong>：如果操作A在操作B之前执行，并且操作B在操作C之前执行，那么操作A必须在操作C之前执行。</li>
+</ol>
+<h2 id="4-单例模式的正确写法"><a href="#4-单例模式的正确写法" class="headerlink" title="4 单例模式的正确写法"></a>4 单例模式的正确写法</h2><p>有了以上的分析我们知道，我们只需要在保证对ins的访问是读在写之后即可，因此正确的做法是在ins 前加上一个关键字volatile。因此DCL的正确写法应该如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Instance</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String str = <span class="string">""</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> a = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> Instance ins = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 构造方法私有化</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Instance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        str = <span class="string">"hello"</span>;</span><br><span class="line">        a = <span class="number">20</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * DCL方式获取单例</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Instance <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (ins == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Instance.class)&#123;</span><br><span class="line">                ins = <span class="keyword">new</span> Instance();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ins;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://imwyy.github.io/2018/05/05/java并发编程之DCL单例模式缺陷/" title="java并发编程之DCL单例模式与Happen-Before" target="_blank" rel="external">http://imwyy.github.io/2018/05/05/java并发编程之DCL单例模式缺陷/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
+        <div>我真的不会码代码。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+       
+    <div id="uyan_frame"></div>
+
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2018/05/05/java并发编程之原子变量和CAS/" title="java并发编程之原子变量和CAS">下一篇&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  
+  
+  <div class="bar-right">
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+  </div>
+  
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-tit">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="donate-payimg">
+            <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+          </div>
+          <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+          <div class="donate-payselect">
+            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
+                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="支付宝" /></label>
+              </div>
+            </div>
+            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-weipay" value="weipay">
+                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="微信支付" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="text-grey">
+            <p>扫一扫，即可进行扫码打赏哦</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.js"></script>
+<script src="/js/application.js"></script>
+  
+    
+    
+    
+        <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+    
+    
+        
+<script defer src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+    
+    
+        
+    
+    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+
+
+    
+    
+
+
+
+</body>
+</html>
