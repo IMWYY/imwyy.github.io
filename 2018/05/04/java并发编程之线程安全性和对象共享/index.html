@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>java并发编程之线程安全性和对象共享 | A Programmer</title>
+  <meta name="description" content="读书笔记来自《java并发编程实战》。 线程安全性可重入锁 可重入意味着获取锁的操作的粒度是线程而不是调用。 实现方法是为每个锁关联一个获取计数值和一个所有者进程。当计数器为0，这个锁被认为可以被任何线程池游。当线程请求一个未被池游的锁时，JVM将记下锁的持有者，并且将计数器置为1，如果同一个线程再次获取这个锁，计数器将递增。当线程退出痛不快，计数器递减。当计数器为0，锁被释放。  对象的共享可见">
+<meta name="keywords" content="java并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java并发编程之线程安全性和对象共享">
+<meta property="og:url" content="http://imwyy.github.io/2018/05/04/java并发编程之线程安全性和对象共享/index.html">
+<meta property="og:site_name" content="stpehen的博客">
+<meta property="og:description" content="读书笔记来自《java并发编程实战》。 线程安全性可重入锁 可重入意味着获取锁的操作的粒度是线程而不是调用。 实现方法是为每个锁关联一个获取计数值和一个所有者进程。当计数器为0，这个锁被认为可以被任何线程池游。当线程请求一个未被池游的锁时，JVM将记下锁的持有者，并且将计数器置为1，如果同一个线程再次获取这个锁，计数器将递增。当线程退出痛不快，计数器递减。当计数器为0，锁被释放。  对象的共享可见">
+<meta property="og:updated_time" content="2018-05-04T13:11:33.612Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java并发编程之线程安全性和对象共享">
+<meta name="twitter:description" content="读书笔记来自《java并发编程实战》。 线程安全性可重入锁 可重入意味着获取锁的操作的粒度是线程而不是调用。 实现方法是为每个锁关联一个获取计数值和一个所有者进程。当计数器为0，这个锁被认为可以被任何线程池游。当线程请求一个未被池游的锁时，JVM将记下锁的持有者，并且将计数器置为1，如果同一个线程再次获取这个锁，计数器将递增。当线程退出痛不快，计数器递减。当计数器为0，锁被释放。  对象的共享可见">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://imwyy.github.io/2018/05/04/java并发编程之线程安全性和对象共享/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="stpehen的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/head.jpg" type="image/x-icon">
+  
+  <!-- font-awesome CSS -->
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  
+    
+    
+
+</head>
+
+
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/IMWYY" target="_blank">
+          <img class="img-circle img-rotate" src="/images/head.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">stephen</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">What The f__k</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="fa fa-map-marker"></i> Nanjing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <!-- <span class="ins-close ins-selectable"><i class="fa fa-times"></i></span> -->
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav">
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/">
+            
+            <i class="fa fa-fw fa-dashboard"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="fa fa-fw fa-delicious"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="fa fa-fw fa-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="fa fa-fw fa-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            
+            <p>您好，您是第<span id="busuanzi_value_site_uv">0</span>位访客</p>
+            
+            <div class="content">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/leetcode/">leetcode</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/shell/">shell</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发/">并发</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java并发/">java并发</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/">shell</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库事务/">数据库事务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库锁/">数据库锁</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">16</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/06/19/netty高性能调优/" class="title">netty高性能调优</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-06-19T09:45:13.000Z" itemprop="datePublished">2018-06-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/08/数据库MVCC机制/" class="title">数据库MVCC机制</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-07T16:01:33.000Z" itemprop="datePublished">2018-05-08</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/06/rxjava-retrofit封装处理网络请求-1/" class="title">rxjava+retrofit封装处理网络请求</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-06T15:18:15.000Z" itemprop="datePublished">2018-05-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/06/rxjava-retrofit封装处理网络请求/" class="title">rxjava+retrofit封装处理网络请求</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-06T15:17:43.000Z" itemprop="datePublished">2018-05-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/android/">android</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/06/rxjava+retrofit封装处理网络请求/" class="title">rxjava2+retrofit封装处理网络请求全解析</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-06T15:17:37.000Z" itemprop="datePublished">2018-05-06</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-java并发编程之线程安全性和对象共享" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      java并发编程之线程安全性和对象共享
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2018/05/04/java并发编程之线程安全性和对象共享/" class="article-date">
+	  <time datetime="2018-05-04T13:10:32.000Z" itemprop="datePublished">2018-05-04</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="fa fa-folder"></i>
+    <a class="article-category-link" href="/categories/java/">java</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="fa fa-tag"></i>
+	<a class="article-tag-link" href="/tags/java并发/">java并发</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="fa fa-eye" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2018/05/04/java并发编程之线程安全性和对象共享/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 1,411(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 5(minutes)</span>
+	
+
+      </div>
+      
+    </div>
+    <div class="article-entry markdown-body" itemprop="articleBody">
+      
+        <p>读书笔记来自《java并发编程实战》。</p>
+<h1 id="线程安全性"><a href="#线程安全性" class="headerlink" title="线程安全性"></a>线程安全性</h1><h2 id="可重入锁"><a href="#可重入锁" class="headerlink" title="可重入锁"></a>可重入锁</h2><ul>
+<li>可重入意味着获取锁的操作的粒度是线程而不是调用。</li>
+<li>实现方法是为每个锁关联一个获取计数值和一个所有者进程。当计数器为0，这个锁被认为可以被任何线程池游。当线程请求一个未被池游的锁时，JVM将记下锁的持有者，并且将计数器置为1，如果同一个线程再次获取这个锁，计数器将递增。当线程退出痛不快，计数器递减。当计数器为0，锁被释放。</li>
+</ul>
+<h1 id="对象的共享"><a href="#对象的共享" class="headerlink" title="对象的共享"></a>对象的共享</h1><h2 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h2><h4 id="volatile关键字"><a href="#volatile关键字" class="headerlink" title="volatile关键字"></a>volatile关键字</h4><p>并发需要三点必须满足的特性</p>
+<ul>
+<li>原子性：即一个操作或者多个操作 要么全部执行并且执行的过程不会被任何因素打断，要么就都不执行。</li>
+<li>可见性：多个线程访问一个变量，其他线程能看到变量的改变</li>
+<li>有序性：即程序执行的顺序按照代码的先后顺序执行。</li>
+</ul>
+<p>volatile满足了可见性和有序性，没有办法满足原子性。实现原理是，每个线程的工作内存中，复制了变量的值（源自cpu缓存，防止每次都去主存获取）。当某个线程更改变量的值，其他线程的缓存失效，必须去主存重新获取。更改完成立马写回主存。</p>
+<p>所以使用volatile的场景是能够保证操作原子性的情况变量的更改不依赖于当前值，或者可以确保只有单个线程更新变量的值。</p>
+<h4 id="加锁可以保证可见性"><a href="#加锁可以保证可见性" class="headerlink" title="加锁可以保证可见性"></a>加锁可以保证可见性</h4><p>加锁不仅局限于互斥行为，还包括了内存可见性。</p>
+<h2 id="发布和逸出"><a href="#发布和逸出" class="headerlink" title="发布和逸出"></a>发布和逸出</h2><h4 id="this引用逸出"><a href="#this引用逸出" class="headerlink" title="this引用逸出"></a>this引用逸出</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThisEscape</span></span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ThisEscape</span> <span class="params">(EventSource source)</span></span>&#123;</span><br><span class="line">		source.registerListener&#123;</span><br><span class="line">			<span class="keyword">new</span> EventListener()&#123;</span><br><span class="line">				<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(Event e)</span></span>&#123;</span><br><span class="line">					doSomething(e);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在对象没有确定完全初始化之前就发布了this引用。在构造函数中注册了监听事件，但是此时ThisEscape对象还没有完全初始化。</p>
+<h4 id="安全的对象构造过程"><a href="#安全的对象构造过程" class="headerlink" title="安全的对象构造过程"></a>安全的对象构造过程</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeListener</span></span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> EventListener listener;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="title">SafeListener</span><span class="params">()</span></span>&#123;</span><br><span class="line">		listener =<span class="keyword">new</span> EventListener()&#123;</span><br><span class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(Event e)</span></span>&#123;</span><br><span class="line">				doSomething(e);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SafeListener <span class="title">newInstance</span><span class="params">(EventSource source)</span></span>&#123;</span><br><span class="line">		SafeListener safe=<span class="keyword">new</span> SafeListener();</span><br><span class="line">		source.registerListener(safe.listener);</span><br><span class="line">		<span class="keyword">return</span> safe;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在执行<code>source.registerListener(safe.listener);</code>之前， SafeListener已经完全初始化。</p>
+<h2 id="线程封闭"><a href="#线程封闭" class="headerlink" title="线程封闭"></a>线程封闭</h2><h4 id="Ad-hoc线程封闭"><a href="#Ad-hoc线程封闭" class="headerlink" title="Ad-hoc线程封闭"></a>Ad-hoc线程封闭</h4><p>完全由程序控制维护线程的封闭性，十分脆弱，尽量要少用。</p>
+<h4 id="栈封闭"><a href="#栈封闭" class="headerlink" title="栈封闭"></a>栈封闭</h4><p>即使用的变量均为局部变量，每次调用方法都会把局部变量压栈，同样也不存在线程安全的问题。</p>
+<p>但是注意不可以对传入的引用做修改（函数副作用）或者发布方法中的一个引用（如集合引用），这样会导致逸出，带来线程安全问题。且不易维护。</p>
+<h4 id="Threadlocal类"><a href="#Threadlocal类" class="headerlink" title="Threadlocal类"></a>Threadlocal类</h4><p>在每个线程中都有一份变量的备份，实现原理是利用map（ThreadlocalMap， key是threadlocal）。解决了对于每个线程都使用的变量需要同步的问题，比如创建数据库的连接，session管理。</p>
+<p>实现应用程序框架时，使用了大量的Threadlocal。如EJB调用，J2EE需要将一个事务上下文与某个执行中的线程关联起来。通过将事物上下文保存在静态的Threadlocal中实现。当框架需要知道当前运行的是哪一个事务的时候，只要从Threadlocal中读取上下文。</p>
+<p>这种方法会降低代码的可重用性，带来隐含的耦合。使用时需要小心。</p>
+<h2 id="不变性"><a href="#不变性" class="headerlink" title="不变性"></a>不变性</h2><p>不可变对象一定是线程安全的。</p>
+<p>如何构造一个不变的类。</p>
+<ul>
+<li>final修饰变量和类</li>
+<li>不提供setter方法</li>
+<li>构造方法里初始化所有的值</li>
+<li>getter方法返回值的clone</li>
+<li>对象的clone采用深度复制</li>
+<li>类成员变量被修饰成private</li>
+</ul>
+<h2 id="安全发布"><a href="#安全发布" class="headerlink" title="安全发布"></a>安全发布</h2><p>安全地发布一个对象，对象的应用以及对象的状态必须同时对其他线程可见。一个正确构造的对象可以通过以下方式来安全地发布：</p>
+<ul>
+<li>在静态初始化函数中初始化一个对象引用</li>
+<li>将对象的应用保存到volatile类型的域或者AtomicReferance对象中</li>
+<li>将对象的引用保存到某个正确构造对象的final类型域中</li>
+<li>将对象的引用保存到一个由锁保护的域中</li>
+</ul>
+<h4 id="利用容器"><a href="#利用容器" class="headerlink" title="利用容器"></a>利用容器</h4><p>线程安全库中的容器类提供了以下的安全发布保证：</p>
+<ul>
+<li>通过将一个键或者值放入Hashtable、synchronizedMap或者ConcurrentMap中，可以安全地将它发布给任何从这些容器中访问它的线程（无论是直接访问还是通过迭代器访问）</li>
+<li>通过将某个元素放入Vector、CopyOnWriteArrayList、CopyOnWriteArraySet、synchronizedList或synchronizedSet中，可以将该元素安全地发布到任何从这些容器中访问该元素的线程</li>
+<li>通过将某个元素放入BlockingQueue或者ConcurrentLinkedQueue中，可以将该元素安全地发布到任何从这些队列中访问该元素的线程。</li>
+<li>类库中的其他数据传递机制（例如Future和Exchanger）同样能实现安全发布。</li>
+</ul>
+<h4 id="利用静态变量"><a href="#利用静态变量" class="headerlink" title="利用静态变量"></a>利用静态变量</h4><p>静态初始化器由JVM在类的初始化阶段执行。由于在JVM内部存在着同步机制，因此通过这种方式初始化的任何对象都可以被安全地发布</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://imwyy.github.io/2018/05/04/java并发编程之线程安全性和对象共享/" title="java并发编程之线程安全性和对象共享" target="_blank" rel="external">http://imwyy.github.io/2018/05/04/java并发编程之线程安全性和对象共享/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
+        <div>我真的不会码代码。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+       
+    <div id="uyan_frame"></div>
+
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/05/04/java并发编程之对象组合/" title="java并发编程之对象组合"><i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;Newer</a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/03/15/分布式事务的提交：二阶段和三阶段/" title="分布式事务的提交：二阶段提交">Older&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  
+  
+  <div class="bar-right">
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+  </div>
+  
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-tit">
+            <p>Thank you for your support, I will continue to work hard!</p>
+          </div>
+          <div class="donate-payimg">
+            <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+          </div>
+          <p class="text-muted mv">Scan this qrcode</p>
+          <div class="donate-payselect">
+            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
+                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="alipay" /></label>
+              </div>
+            </div>
+            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-weipay" value="weipay">
+                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="weipay" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="text-grey">
+            <p>Scan this qrcode, you can sweep yards reward oh!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.js"></script>
+<script src="/js/application.js"></script>
+  
+    
+    
+    
+        <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+    
+    
+        
+<script defer src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+    
+    
+        
+    
+    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+
+
+    
+    
+
+
+
+</body>
+</html>
