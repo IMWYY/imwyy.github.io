@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="netty关于netty的学习和介绍，可以去github看官方文档，这里良心推荐《netty实战》和《netty权威指南》两本书，前者对于新手更友好，原理和应用都有讲到，多读读会发现很多高性能的优化点。 netty高性能优化点最近参加了阿里中间价性能比赛，为了提升netty写的servive mesh的网络通信的性能，最近几天查了书、博客（这里强力推荐netty作者的博客，干货真的很多），自己总结">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>netty高性能调优 | A Programmer</title>
+  <meta name="description" content="netty关于netty的学习和介绍，可以去github看官方文档，这里良心推荐《netty实战》和《netty权威指南》两本书，前者对于新手更友好，原理和应用都有讲到，多读读会发现很多高性能的优化点。 netty高性能优化点最近参加了阿里中间价性能比赛，为了提升netty写的servive mesh的网络通信的性能，最近几天查了书、博客（这里强力推荐netty作者的博客，干货真的很多），自己总结">
 <meta property="og:type" content="article">
 <meta property="og:title" content="netty高性能调优">
 <meta property="og:url" content="http://imwyy.github.io/2018/06/19/netty高性能调优/index.html">
@@ -19,129 +30,321 @@
 <meta name="twitter:title" content="netty高性能调优">
 <meta name="twitter:description" content="netty关于netty的学习和介绍，可以去github看官方文档，这里良心推荐《netty实战》和《netty权威指南》两本书，前者对于新手更友好，原理和应用都有讲到，多读读会发现很多高性能的优化点。 netty高性能优化点最近参加了阿里中间价性能比赛，为了提升netty写的servive mesh的网络通信的性能，最近几天查了书、博客（这里强力推荐netty作者的博客，干货真的很多），自己总结">
 <meta name="twitter:image" content="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1529394914.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://imwyy.github.io/2018/06/19/netty高性能调优/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="stpehen的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/head.jpg" type="image/x-icon">
+  
+  <!-- font-awesome CSS -->
+  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  
     
     
-        
-          
-              <link rel="shortcut icon" href="/images/favicon.ico">
-          
-        
-        
-          
-            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-          
-        
-        
-          
-            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-          
-        
-    
-    <!-- title -->
-    <title>netty高性能调优</title>
-    <!-- styles -->
-    <link rel="stylesheet" href="/css/style.css">
-    <!-- persian styles -->
-    
-      <link rel="stylesheet" href="/css/rtl.css">
-    
-    <!-- rss -->
-    
-    
+
 </head>
 
-<body class="max-width mx-auto px3 ltr">
-    
-      <div id="header-post">
-  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
-  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
-  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
-  <span id="menu">
-    <span id="nav">
-      <ul>
-         
-          <li><a href="/">Home</a></li>
-         
-          <li><a href="/about/">About</a></li>
-         
-          <li><a href="/archives/">Writing</a></li>
-         
-          <li><a href="/projects_url">Projects</a></li>
-        
-      </ul>
-    </span>
-    <br/>
-    <span id="actions">
-      <ul>
-        
-        
-        <li><a class="icon" href="/2018/05/08/数据库MVCC机制/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
-        
-        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
-        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
-      </ul>
-      <span id="i-prev" class="info" style="display:none;">Previous post</span>
-      <span id="i-next" class="info" style="display:none;">Next post</span>
-      <span id="i-top" class="info" style="display:none;">Back to top</span>
-      <span id="i-share" class="info" style="display:none;">Share post</span>
-    </span>
-    <br/>
-    <div id="share" style="display: none">
-      <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://imwyy.github.io/2018/06/19/netty高性能调优/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&text=netty高性能调优"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&is_video=false&description=netty高性能调优"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=netty高性能调优&body=Check out this article: http://imwyy.github.io/2018/06/19/netty高性能调优/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&name=netty高性能调优&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-</ul>
 
+<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/IMWYY" target="_blank">
+          <img class="img-circle img-rotate" src="/images/head.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">stephen</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">What The f__k</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="fa fa-map-marker"></i> Nanjing, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="Search" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="fa fa-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <!-- <span class="ins-close ins-selectable"><i class="fa fa-times"></i></span> -->
     </div>
-    <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#netty"><span class="toc-number">1.</span> <span class="toc-text"><a href="#netty" class="headerlink" title="netty"></a>netty</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#netty高性能优化点"><span class="toc-number">2.</span> <span class="toc-text"><a href="#netty&#x9AD8;&#x6027;&#x80FD;&#x4F18;&#x5316;&#x70B9;" class="headerlink" title="netty&#x9AD8;&#x6027;&#x80FD;&#x4F18;&#x5316;&#x70B9;"></a>netty&#x9AD8;&#x6027;&#x80FD;&#x4F18;&#x5316;&#x70B9;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-尽可能的复用EventLoopGroup。"><span class="toc-number">2.0.1.</span> <span class="toc-text"><a href="#1-&#x5C3D;&#x53EF;&#x80FD;&#x7684;&#x590D;&#x7528;EventLoopGroup&#x3002;" class="headerlink" title="1. &#x5C3D;&#x53EF;&#x80FD;&#x7684;&#x590D;&#x7528;EventLoopGroup&#x3002;"></a>1. <strong>&#x5C3D;&#x53EF;&#x80FD;&#x7684;&#x590D;&#x7528;<code>EventLoopGroup</code>&#x3002;</strong></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-使用EventLoop的任务调度"><span class="toc-number">2.0.2.</span> <span class="toc-text"><a href="#2-&#x4F7F;&#x7528;EventLoop&#x7684;&#x4EFB;&#x52A1;&#x8C03;&#x5EA6;" class="headerlink" title="2. &#x4F7F;&#x7528;EventLoop&#x7684;&#x4EFB;&#x52A1;&#x8C03;&#x5EA6;"></a>2. &#x4F7F;&#x7528;<code>EventLoop</code>&#x7684;&#x4EFB;&#x52A1;&#x8C03;&#x5EA6;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-减少ChannelPipline的调用长度"><span class="toc-number">2.0.3.</span> <span class="toc-text"><a href="#3-&#x51CF;&#x5C11;ChannelPipline&#x7684;&#x8C03;&#x7528;&#x957F;&#x5EA6;" class="headerlink" title="3. &#x51CF;&#x5C11;ChannelPipline&#x7684;&#x8C03;&#x7528;&#x957F;&#x5EA6;"></a>3. &#x51CF;&#x5C11;ChannelPipline&#x7684;&#x8C03;&#x7528;&#x957F;&#x5EA6;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-减少ChannelHandler的创建"><span class="toc-number">2.0.4.</span> <span class="toc-text"><a href="#4-&#x51CF;&#x5C11;ChannelHandler&#x7684;&#x521B;&#x5EFA;" class="headerlink" title="4. &#x51CF;&#x5C11;ChannelHandler&#x7684;&#x521B;&#x5EFA;"></a>4. &#x51CF;&#x5C11;ChannelHandler&#x7684;&#x521B;&#x5EFA;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-减少系统调用（Flush）的调用"><span class="toc-number">2.0.5.</span> <span class="toc-text"><a href="#5-&#x51CF;&#x5C11;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#xFF08;Flush&#xFF09;&#x7684;&#x8C03;&#x7528;" class="headerlink" title="5. &#x51CF;&#x5C11;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#xFF08;Flush&#xFF09;&#x7684;&#x8C03;&#x7528;"></a>5. &#x51CF;&#x5C11;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#xFF08;Flush&#xFF09;&#x7684;&#x8C03;&#x7528;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-使用单链接"><span class="toc-number">2.0.6.</span> <span class="toc-text"><a href="#6-&#x4F7F;&#x7528;&#x5355;&#x94FE;&#x63A5;" class="headerlink" title="6. &#x4F7F;&#x7528;&#x5355;&#x94FE;&#x63A5;"></a>6. &#x4F7F;&#x7528;&#x5355;&#x94FE;&#x63A5;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-利用netty零拷贝，在IO操作时使用池化的DirectBuffer"><span class="toc-number">2.0.7.</span> <span class="toc-text"><a href="#7-&#x5229;&#x7528;netty&#x96F6;&#x62F7;&#x8D1D;&#xFF0C;&#x5728;IO&#x64CD;&#x4F5C;&#x65F6;&#x4F7F;&#x7528;&#x6C60;&#x5316;&#x7684;DirectBuffer" class="headerlink" title="7. &#x5229;&#x7528;netty&#x96F6;&#x62F7;&#x8D1D;&#xFF0C;&#x5728;IO&#x64CD;&#x4F5C;&#x65F6;&#x4F7F;&#x7528;&#x6C60;&#x5316;&#x7684;DirectBuffer"></a>7. &#x5229;&#x7528;netty&#x96F6;&#x62F7;&#x8D1D;&#xFF0C;&#x5728;IO&#x64CD;&#x4F5C;&#x65F6;&#x4F7F;&#x7528;&#x6C60;&#x5316;&#x7684;DirectBuffer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-一些配置参数的设置"><span class="toc-number">2.0.8.</span> <span class="toc-text"><a href="#8-&#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x53C2;&#x6570;&#x7684;&#x8BBE;&#x7F6E;" class="headerlink" title="8. &#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x53C2;&#x6570;&#x7684;&#x8BBE;&#x7F6E;"></a>8. &#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x53C2;&#x6570;&#x7684;&#x8BBE;&#x7F6E;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#9-小心的使用并发编程技巧"><span class="toc-number">2.0.9.</span> <span class="toc-text"><a href="#9-&#x5C0F;&#x5FC3;&#x7684;&#x4F7F;&#x7528;&#x5E76;&#x53D1;&#x7F16;&#x7A0B;&#x6280;&#x5DE7;" class="headerlink" title="9. &#x5C0F;&#x5FC3;&#x7684;&#x4F7F;&#x7528;&#x5E76;&#x53D1;&#x7F16;&#x7A0B;&#x6280;&#x5DE7;"></a>9. &#x5C0F;&#x5FC3;&#x7684;&#x4F7F;&#x7528;&#x5E76;&#x53D1;&#x7F16;&#x7A0B;&#x6280;&#x5DE7;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#10-响应顺序的处理"><span class="toc-number">2.0.10.</span> <span class="toc-text"><a href="#10-&#x54CD;&#x5E94;&#x987A;&#x5E8F;&#x7684;&#x5904;&#x7406;" class="headerlink" title="10. &#x54CD;&#x5E94;&#x987A;&#x5E8F;&#x7684;&#x5904;&#x7406;"></a>10. &#x54CD;&#x5E94;&#x987A;&#x5E8F;&#x7684;&#x5904;&#x7406;</span></a></li></ol></li></ol></li></ol>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
     </div>
-  </span>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav">
+        
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/">
+            
+            <i class="fa fa-fw fa-dashboard"></i>
+            
+            <span class="menu-title">Home</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="fa fa-fw fa-delicious"></i>
+            
+            <span class="menu-title">Archives</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="fa fa-fw fa-folder"></i>
+            
+            <span class="menu-title">Categories</span>
+          </a>
+        </li>
+        
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="fa fa-fw fa-tags"></i>
+            
+            <span class="menu-title">Tags</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">Board</h3>
+    <div class="widget-body">
+        <div id="board">
+            
+            <p>您好，您是第<span id="busuanzi_value_site_uv">0</span>位访客</p>
+            
+            <div class="content">
+                
+            </div>
+        </div>
+    </div>
 </div>
 
     
-    <div class="content index py4">
-        
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
-  <header>
+      
+  <div class="widget">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/leetcode/">leetcode</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/shell/">shell</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发/">并发</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
     
-    <h1 class="posttitle" itemprop="name headline">
-        netty高性能调优
-    </h1>
-
-
-
-    <div class="meta">
-      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <span itemprop="name">stpehen的博客</span>
-      </span>
       
-    <div class="postdate">
+  <div class="widget">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java并发/">java并发</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/">shell</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库事务/">数据库事务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库锁/">数据库锁</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">5</span></li></ul>
+    </div>
+  </div>
+
+
+    
       
-        <time datetime="2018-06-19T09:45:13.000Z" itemprop="datePublished">2018-06-19</time>
+  <div class="widget">
+    <h3 class="widget-title">Archive</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">16</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
         
-      
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/06/19/netty高性能调优/" class="title">netty高性能调优</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-06-19T09:45:13.000Z" itemprop="datePublished">2018-06-19</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/08/数据库MVCC机制/" class="title">数据库MVCC机制</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-07T16:01:33.000Z" itemprop="datePublished">2018-05-08</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/06/rxjava-retrofit封装处理网络请求-1/" class="title">rxjava+retrofit封装处理网络请求</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-06T15:18:15.000Z" itemprop="datePublished">2018-05-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/06/rxjava-retrofit封装处理网络请求/" class="title">rxjava+retrofit封装处理网络请求</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-06T15:17:43.000Z" itemprop="datePublished">2018-05-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/android/">android</a>
+              </p>
+              <p class="item-title">
+                <a href="/2018/05/06/rxjava+retrofit封装处理网络请求/" class="title">rxjava2+retrofit封装处理网络请求全解析</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2018-05-06T15:17:37.000Z" itemprop="datePublished">2018-05-06</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
     </div>
-
-
-      
-
-      
-
-    </div>
-  </header>
+  </div>
   
 
-  <div class="content" itemprop="articleBody">
-    <h2 id="netty"><a href="#netty" class="headerlink" title="netty"></a>netty</h2><p>关于netty的学习和介绍，可以去github看官方文档，这里良心推荐《netty实战》和《netty权威指南》两本书，前者对于新手更友好，原理和应用都有讲到，多读读会发现很多高性能的优化点。</p>
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-netty高性能调优" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      netty高性能调优
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="fa fa-calendar-check-o"></i>
+	<a href="/2018/06/19/netty高性能调优/" class="article-date">
+	  <time datetime="2018-06-19T09:45:13.000Z" itemprop="datePublished">2018-06-19</time>
+	</a>
+</span>
+        
+        
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="fa fa-eye" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2018/06/19/netty高性能调优/#comments" class="article-comment-link">Comments</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 1,850(words)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 8(minutes)</span>
+	
+
+      </div>
+      
+    </div>
+    <div class="article-entry markdown-body" itemprop="articleBody">
+      
+        <h2 id="netty"><a href="#netty" class="headerlink" title="netty"></a>netty</h2><p>关于netty的学习和介绍，可以去github看官方文档，这里良心推荐《netty实战》和《netty权威指南》两本书，前者对于新手更友好，原理和应用都有讲到，多读读会发现很多高性能的优化点。</p>
 <h2 id="netty高性能优化点"><a href="#netty高性能优化点" class="headerlink" title="netty高性能优化点"></a>netty高性能优化点</h2><p>最近参加了阿里中间价性能比赛，为了提升netty写的servive mesh的网络通信的性能，最近几天查了书、博客（这里强力推荐netty作者的博客，干货真的很多），自己总结了如下一下优化点。如果有错误希望能指正。</p>
 <p>注：这里所讨论的对应的netty版本为netty4</p>
 <p>首先要明确要netty优化的几个主要的关注点。</p>
@@ -194,97 +397,180 @@
 <p><img src="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1529400921.png" alt=""></p>
 <p>具体实现可以参见nifty中的<a href="https://github.com/facebookarchive/nifty/blob/master/nifty-core/src/main/java/com/facebook/nifty/core/NiftyDispatcher.java" target="_blank" rel="noopener">NiftyDispatcher类</a>。</p>
 
-  </div>
-</article>
-
-
-
-        
-          <div id="footer-post-container">
-  <div id="footer-post">
-
-    <div id="nav-footer" style="display: none">
-      <ul>
-         
-          <li><a href="/">Home</a></li>
-         
-          <li><a href="/about/">About</a></li>
-         
-          <li><a href="/archives/">Writing</a></li>
-         
-          <li><a href="/projects_url">Projects</a></li>
-        
-      </ul>
+      
     </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://imwyy.github.io/2018/06/19/netty高性能调优/" title="netty高性能调优" target="_blank" rel="external">http://imwyy.github.io/2018/06/19/netty高性能调优/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
 
-    <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#netty"><span class="toc-number">1.</span> <span class="toc-text"><a href="#netty" class="headerlink" title="netty"></a>netty</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#netty高性能优化点"><span class="toc-number">2.</span> <span class="toc-text"><a href="#netty&#x9AD8;&#x6027;&#x80FD;&#x4F18;&#x5316;&#x70B9;" class="headerlink" title="netty&#x9AD8;&#x6027;&#x80FD;&#x4F18;&#x5316;&#x70B9;"></a>netty&#x9AD8;&#x6027;&#x80FD;&#x4F18;&#x5316;&#x70B9;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-尽可能的复用EventLoopGroup。"><span class="toc-number">2.0.1.</span> <span class="toc-text"><a href="#1-&#x5C3D;&#x53EF;&#x80FD;&#x7684;&#x590D;&#x7528;EventLoopGroup&#x3002;" class="headerlink" title="1. &#x5C3D;&#x53EF;&#x80FD;&#x7684;&#x590D;&#x7528;EventLoopGroup&#x3002;"></a>1. <strong>&#x5C3D;&#x53EF;&#x80FD;&#x7684;&#x590D;&#x7528;<code>EventLoopGroup</code>&#x3002;</strong></span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-使用EventLoop的任务调度"><span class="toc-number">2.0.2.</span> <span class="toc-text"><a href="#2-&#x4F7F;&#x7528;EventLoop&#x7684;&#x4EFB;&#x52A1;&#x8C03;&#x5EA6;" class="headerlink" title="2. &#x4F7F;&#x7528;EventLoop&#x7684;&#x4EFB;&#x52A1;&#x8C03;&#x5EA6;"></a>2. &#x4F7F;&#x7528;<code>EventLoop</code>&#x7684;&#x4EFB;&#x52A1;&#x8C03;&#x5EA6;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-减少ChannelPipline的调用长度"><span class="toc-number">2.0.3.</span> <span class="toc-text"><a href="#3-&#x51CF;&#x5C11;ChannelPipline&#x7684;&#x8C03;&#x7528;&#x957F;&#x5EA6;" class="headerlink" title="3. &#x51CF;&#x5C11;ChannelPipline&#x7684;&#x8C03;&#x7528;&#x957F;&#x5EA6;"></a>3. &#x51CF;&#x5C11;ChannelPipline&#x7684;&#x8C03;&#x7528;&#x957F;&#x5EA6;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-减少ChannelHandler的创建"><span class="toc-number">2.0.4.</span> <span class="toc-text"><a href="#4-&#x51CF;&#x5C11;ChannelHandler&#x7684;&#x521B;&#x5EFA;" class="headerlink" title="4. &#x51CF;&#x5C11;ChannelHandler&#x7684;&#x521B;&#x5EFA;"></a>4. &#x51CF;&#x5C11;ChannelHandler&#x7684;&#x521B;&#x5EFA;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-减少系统调用（Flush）的调用"><span class="toc-number">2.0.5.</span> <span class="toc-text"><a href="#5-&#x51CF;&#x5C11;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#xFF08;Flush&#xFF09;&#x7684;&#x8C03;&#x7528;" class="headerlink" title="5. &#x51CF;&#x5C11;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#xFF08;Flush&#xFF09;&#x7684;&#x8C03;&#x7528;"></a>5. &#x51CF;&#x5C11;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#xFF08;Flush&#xFF09;&#x7684;&#x8C03;&#x7528;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-使用单链接"><span class="toc-number">2.0.6.</span> <span class="toc-text"><a href="#6-&#x4F7F;&#x7528;&#x5355;&#x94FE;&#x63A5;" class="headerlink" title="6. &#x4F7F;&#x7528;&#x5355;&#x94FE;&#x63A5;"></a>6. &#x4F7F;&#x7528;&#x5355;&#x94FE;&#x63A5;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-利用netty零拷贝，在IO操作时使用池化的DirectBuffer"><span class="toc-number">2.0.7.</span> <span class="toc-text"><a href="#7-&#x5229;&#x7528;netty&#x96F6;&#x62F7;&#x8D1D;&#xFF0C;&#x5728;IO&#x64CD;&#x4F5C;&#x65F6;&#x4F7F;&#x7528;&#x6C60;&#x5316;&#x7684;DirectBuffer" class="headerlink" title="7. &#x5229;&#x7528;netty&#x96F6;&#x62F7;&#x8D1D;&#xFF0C;&#x5728;IO&#x64CD;&#x4F5C;&#x65F6;&#x4F7F;&#x7528;&#x6C60;&#x5316;&#x7684;DirectBuffer"></a>7. &#x5229;&#x7528;netty&#x96F6;&#x62F7;&#x8D1D;&#xFF0C;&#x5728;IO&#x64CD;&#x4F5C;&#x65F6;&#x4F7F;&#x7528;&#x6C60;&#x5316;&#x7684;DirectBuffer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-一些配置参数的设置"><span class="toc-number">2.0.8.</span> <span class="toc-text"><a href="#8-&#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x53C2;&#x6570;&#x7684;&#x8BBE;&#x7F6E;" class="headerlink" title="8. &#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x53C2;&#x6570;&#x7684;&#x8BBE;&#x7F6E;"></a>8. &#x4E00;&#x4E9B;&#x914D;&#x7F6E;&#x53C2;&#x6570;&#x7684;&#x8BBE;&#x7F6E;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#9-小心的使用并发编程技巧"><span class="toc-number">2.0.9.</span> <span class="toc-text"><a href="#9-&#x5C0F;&#x5FC3;&#x7684;&#x4F7F;&#x7528;&#x5E76;&#x53D1;&#x7F16;&#x7A0B;&#x6280;&#x5DE7;" class="headerlink" title="9. &#x5C0F;&#x5FC3;&#x7684;&#x4F7F;&#x7528;&#x5E76;&#x53D1;&#x7F16;&#x7A0B;&#x6280;&#x5DE7;"></a>9. &#x5C0F;&#x5FC3;&#x7684;&#x4F7F;&#x7528;&#x5E76;&#x53D1;&#x7F16;&#x7A0B;&#x6280;&#x5DE7;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#10-响应顺序的处理"><span class="toc-number">2.0.10.</span> <span class="toc-text"><a href="#10-&#x54CD;&#x5E94;&#x987A;&#x5E8F;&#x7684;&#x5904;&#x7406;" class="headerlink" title="10. &#x54CD;&#x5E94;&#x987A;&#x5E8F;&#x7684;&#x5904;&#x7406;"></a>10. &#x54CD;&#x5E94;&#x987A;&#x5E8F;&#x7684;&#x5904;&#x7406;</span></a></li></ol></li></ol></li></ol>
-    </div>
 
-    <div id="share-footer" style="display: none">
-      <ul>
-  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://imwyy.github.io/2018/06/19/netty高性能调优/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://twitter.com/share?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&text=netty高性能调优"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&is_video=false&description=netty高性能调优"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=netty高性能调优&body=Check out this article: http://imwyy.github.io/2018/06/19/netty高性能调优/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="https://getpocket.com/save?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://reddit.com/submit?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://digg.com/submit?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&title=netty高性能调优"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://imwyy.github.io/2018/06/19/netty高性能调优/&name=netty高性能调优&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-</ul>
-
-    </div>
-
-    <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
-        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
-        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
-    </div>
-
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
+        <div>我真的不会码代码。</div>
+      </div>
+    </figure>
   </div>
 </div>
 
-        
-        <footer id="footer">
-  <div class="footer-left">
-    Copyright &copy; 2019 stpehen
-  </div>
-  <div class="footer-right">
-    <nav>
-      <ul>
-         
-          <li><a href="/">Home</a></li>
-         
-          <li><a href="/about/">About</a></li>
-         
-          <li><a href="/archives/">Writing</a></li>
-         
-          <li><a href="/projects_url">Projects</a></li>
-        
-      </ul>
-    </nav>
-  </div>
-</footer>
 
     </div>
-    <!-- styles -->
-<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
-<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+  </article>
+  
+    
+  <section id="comments">
+  	
+       
+    <div id="uyan_frame"></div>
 
-    <!-- jquery -->
-<script src="/lib/jquery/jquery.min.js"></script>
-<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
-<script src="/js/main.js"></script>
-<!-- search -->
+    
+  </section>
 
-<!-- Google Analytics -->
 
-<!-- Baidu Analytics -->
+  
+</div>
 
-<!-- Disqus Comments -->
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2018/05/08/数据库MVCC机制/" title="数据库MVCC机制">Older&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
+  
+  
+  <div class="bar-right">
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+  </div>
+  
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-tit">
+            <p>Thank you for your support, I will continue to work hard!</p>
+          </div>
+          <div class="donate-payimg">
+            <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
+          </div>
+          <p class="text-muted mv">Scan this qrcode</p>
+          <div class="donate-payselect">
+            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
+                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="alipay" /></label>
+              </div>
+            </div>
+            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
+              <div class="radio">
+                <input type="radio" name="payment" id="input-weipay" value="weipay">
+                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="weipay" /></label>
+              </div>
+            </div>
+          </div>
+          <div class="text-grey">
+            <p>Scan this qrcode, you can sweep yards reward oh!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+    </div>
+</footer>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.js"></script>
+<script src="/js/application.js"></script>
+  
+    
+    
+    
+        <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+    
+    
+        
+<script defer src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+    
+    
+        
+    
+    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+
+
+    
+    
+
 
 
 </body>
