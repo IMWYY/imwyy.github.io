@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang=en>
 <head>
     <!-- so meta -->
     <meta charset="utf-8">
@@ -13,6 +13,7 @@
 <meta property="og:url" content="http://imwyy.github.io/2018/05/04/java并发编程之lock和synchronize/index.html">
 <meta property="og:site_name" content="stpehen的博客">
 <meta property="og:description" content="在jdk5之前，协调共享对象访问的只有synchronized和lock，jdk增加了一种新的锁机制：ReentrantLock。lock并不是对内置锁的替换，而是互补。这篇文章主要循序渐进的比较两者异同和适用场景，如果有理解错的地方希望大家能指出。 synchronized怎么实现的？synchronized是Java中解决并发问题的一种最常用最简单的一种方法，有效满足了线程安全的三大要求：原子">
+<meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2018-05-04T16:21:23.392Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java并发编程之ReentrantLock和synchronized">
@@ -58,13 +59,13 @@
     <span id="nav">
       <ul>
          
-          <li><a href="/">Inici</a></li>
+          <li><a href="/">Home</a></li>
          
-          <li><a href="/about/">Qui som</a></li>
+          <li><a href="/about/">About</a></li>
          
-          <li><a href="/archives/">Articles</a></li>
+          <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="/projects_url">Projectes</a></li>
+          <li><a href="/projects_url">Projects</a></li>
         
       </ul>
     </span>
@@ -80,10 +81,10 @@
         <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
       </ul>
-      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
-      <span id="i-next" class="info" style="display:none;">Post Següent</span>
-      <span id="i-top" class="info" style="display:none;">Adalt</span>
-      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
     </span>
     <br/>
     <div id="share" style="display: none">
@@ -195,13 +196,13 @@
     <div id="nav-footer" style="display: none">
       <ul>
          
-          <li><a href="/">Inici</a></li>
+          <li><a href="/">Home</a></li>
          
-          <li><a href="/about/">Qui som</a></li>
+          <li><a href="/about/">About</a></li>
          
-          <li><a href="/archives/">Articles</a></li>
+          <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="/projects_url">Projectes</a></li>
+          <li><a href="/projects_url">Projects</a></li>
         
       </ul>
     </div>
@@ -227,10 +228,10 @@
     </div>
 
     <div id="actions-footer">
-        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
         <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
-        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
-        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
     </div>
 
   </div>
@@ -245,13 +246,13 @@
     <nav>
       <ul>
          
-          <li><a href="/">Inici</a></li>
+          <li><a href="/">Home</a></li>
          
-          <li><a href="/about/">Qui som</a></li>
+          <li><a href="/about/">About</a></li>
          
-          <li><a href="/archives/">Articles</a></li>
+          <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="/projects_url">Projectes</a></li>
+          <li><a href="/projects_url">Projects</a></li>
         
       </ul>
     </nav>
