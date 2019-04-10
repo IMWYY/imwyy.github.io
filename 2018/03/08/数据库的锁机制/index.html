@@ -1,23 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="Cache-Control" content="no-transform" />
-  <meta http-equiv="Cache-Control" content="no-siteapp" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="format-detection" content="telephone=no,email=no,adress=no">
-  <!-- Color theme for statusbar -->
-  <meta name="theme-color" content="#000000" />
-  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
-  <meta http-equiv="window-target" content="_top" />
-  
-  
-  <title>数据库的锁机制 | A Programmer</title>
-  <meta name="description" content="前两天刚接到阿里hr的实习电话面试，一直以为对java基础、数据库基础很熟悉，却被问到哑口无言，结果我也不去期盼了，一首凉凉送给自己，可惜啊可惜，总结一句，还是自己太菜。不过也感谢这位java部门的hr，让我意识到真正理解是要能讲出来，要能逻辑一环扣一环，有清晰的知识体系。 下面是面试中问到的数据库的锁机制，今天彻底理清楚。文章中有参考整理其他一些有价值的博客以及mysql官方文档的内容。 数据库">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="前两天刚接到阿里hr的实习电话面试，一直以为对java基础、数据库基础很熟悉，却被问到哑口无言，结果我也不去期盼了，一首凉凉送给自己，可惜啊可惜，总结一句，还是自己太菜。不过也感谢这位java部门的hr，让我意识到真正理解是要能讲出来，要能逻辑一环扣一环，有清晰的知识体系。 下面是面试中问到的数据库的锁机制，今天彻底理清楚。文章中有参考整理其他一些有价值的博客以及mysql官方文档的内容。 数据库">
 <meta name="keywords" content="数据库锁">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数据库的锁机制">
@@ -30,331 +19,141 @@
 <meta name="twitter:title" content="数据库的锁机制">
 <meta name="twitter:description" content="前两天刚接到阿里hr的实习电话面试，一直以为对java基础、数据库基础很熟悉，却被问到哑口无言，结果我也不去期盼了，一首凉凉送给自己，可惜啊可惜，总结一句，还是自己太菜。不过也感谢这位java部门的hr，让我意识到真正理解是要能讲出来，要能逻辑一环扣一环，有清晰的知识体系。 下面是面试中问到的数据库的锁机制，今天彻底理清楚。文章中有参考整理其他一些有价值的博客以及mysql官方文档的内容。 数据库">
 <meta name="twitter:image" content="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1520500121.png">
-  <!-- Canonical links -->
-  <link rel="canonical" href="http://imwyy.github.io/2018/03/08/数据库的锁机制/index.html">
-  
-    <link rel="alternate" href="/atom.xml" title="stpehen的博客" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/head.jpg" type="image/x-icon">
-  
-  <!-- font-awesome CSS -->
-  <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
-  
     
     
-
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>数据库的锁机制</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
 </head>
 
-
-<body class="main-center theme-black" itemscope itemtype="http://schema.org/WebPage">
-  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-  <div class="slimContent">
-    <div class="navbar-header">
-      
-      
-      <div class="profile-block text-center">
-        <a id="avatar" href="https://github.com/IMWYY" target="_blank">
-          <img class="img-circle img-rotate" src="/images/head.jpg" width="200" height="200">
-        </a>
-        <h2 id="name" class="hidden-xs hidden-sm">stephen</h2>
-        <h3 id="title" class="hidden-xs hidden-sm hidden-md">What The f__k</h3>
-        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="fa fa-map-marker"></i> Nanjing, China</small>
-      </div>
-      
-      <div class="search" id="search-form-wrap">
-
-    <form class="search-form sidebar-form">
-        <div class="input-group">
-            <input type="text" class="search-form-input form-control" placeholder="Search" />
-            <span class="input-group-btn">
-                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="fa fa-search"></i></button>
-            </span>
-        </div>
-    </form>
-    <div class="ins-search">
-  <div class="ins-search-mask"></div>
-  <div class="ins-search-container">
-    <div class="ins-input-wrapper">
-      <input type="text" class="ins-search-input" placeholder="Type something..." x-webkit-speech />
-      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-      <!-- <span class="ins-close ins-selectable"><i class="fa fa-times"></i></span> -->
-    </div>
-    <div class="ins-section-wrapper">
-      <div class="ins-section-container"></div>
-    </div>
-  </div>
-</div>
-
-
-</div>
-      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    </div>
-    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
-      <ul class="nav navbar-nav main-nav">
-        
-        
-        
-        <li class="menu-item menu-item-home">
-          <a href="/">
-            
-            <i class="fa fa-fw fa-dashboard"></i>
-            
-            <span class="menu-title">Home</span>
-          </a>
-        </li>
-        
-        
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives">
-            
-            <i class="fa fa-fw fa-delicious"></i>
-            
-            <span class="menu-title">Archives</span>
-          </a>
-        </li>
-        
-        
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories">
-            
-            <i class="fa fa-fw fa-folder"></i>
-            
-            <span class="menu-title">Categories</span>
-          </a>
-        </li>
-        
-        
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags">
-            
-            <i class="fa fa-fw fa-tags"></i>
-            
-            <span class="menu-title">Tags</span>
-          </a>
-        </li>
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Inici</a></li>
+         
+          <li><a href="/about/">Qui som</a></li>
+         
+          <li><a href="/archives/">Articles</a></li>
+         
+          <li><a href="/projects_url">Projectes</a></li>
         
       </ul>
-      
-	
-    <ul class="social-links">
-    	
-        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
         
-    </ul>
+        <li><a class="icon" href="/2018/03/13/leetcode之manacher算法/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2018/02/09/idea项目添加spring/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Post Anterior</span>
+      <span id="i-next" class="info" style="display:none;">Post Següent</span>
+      <span id="i-top" class="info" style="display:none;">Adalt</span>
+      <span id="i-share" class="info" style="display:none;">Compartir Post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://imwyy.github.io/2018/03/08/数据库的锁机制/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&text=数据库的锁机制"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&is_video=false&description=数据库的锁机制"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=数据库的锁机制&body=Check out this article: http://imwyy.github.io/2018/03/08/数据库的锁机制/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&name=数据库的锁机制&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
 
-    </nav>
-  </div>
-</header>
-
-  
-    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
-  <div class="slimContent">
-    
-      <div class="widget">
-    <h3 class="widget-title">Board</h3>
-    <div class="widget-body">
-        <div id="board">
-            
-            <p>您好，您是第<span id="busuanzi_value_site_uv">0</span>位访客</p>
-            
-            <div class="content">
-                
-            </div>
-        </div>
     </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库锁"><span class="toc-number">1.</span> <span class="toc-text"><a href="#&#x6570;&#x636E;&#x5E93;&#x9501;" class="headerlink" title="&#x6570;&#x636E;&#x5E93;&#x9501;"></a>&#x6570;&#x636E;&#x5E93;&#x9501;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#概要"><span class="toc-number">1.0.1.</span> <span class="toc-text"><a href="#&#x6982;&#x8981;" class="headerlink" title="&#x6982;&#x8981;"></a>&#x6982;&#x8981;</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为了表锁和行锁而存在的意向锁"><span class="toc-number">1.1.</span> <span class="toc-text"><a href="#&#x4E3A;&#x4E86;&#x8868;&#x9501;&#x548C;&#x884C;&#x9501;&#x800C;&#x5B58;&#x5728;&#x7684;&#x610F;&#x5411;&#x9501;" class="headerlink" title="&#x4E3A;&#x4E86;&#x8868;&#x9501;&#x548C;&#x884C;&#x9501;&#x800C;&#x5B58;&#x5728;&#x7684;&#x610F;&#x5411;&#x9501;"></a>&#x4E3A;&#x4E86;&#x8868;&#x9501;&#x548C;&#x884C;&#x9501;&#x800C;&#x5B58;&#x5728;&#x7684;&#x610F;&#x5411;&#x9501;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#行锁的细分"><span class="toc-number">1.2.</span> <span class="toc-text"><a href="#&#x884C;&#x9501;&#x7684;&#x7EC6;&#x5206;" class="headerlink" title="&#x884C;&#x9501;&#x7684;&#x7EC6;&#x5206;"></a>&#x884C;&#x9501;&#x7684;&#x7EC6;&#x5206;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#共享锁"><span class="toc-number">1.2.1.</span> <span class="toc-text"><a href="#&#x5171;&#x4EAB;&#x9501;" class="headerlink" title="&#x5171;&#x4EAB;&#x9501;"></a>&#x5171;&#x4EAB;&#x9501;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#排他锁"><span class="toc-number">1.2.2.</span> <span class="toc-text"><a href="#&#x6392;&#x4ED6;&#x9501;" class="headerlink" title="&#x6392;&#x4ED6;&#x9501;"></a>&#x6392;&#x4ED6;&#x9501;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#更新锁"><span class="toc-number">1.2.3.</span> <span class="toc-text"><a href="#&#x66F4;&#x65B0;&#x9501;" class="headerlink" title="&#x66F4;&#x65B0;&#x9501;"></a>&#x66F4;&#x65B0;&#x9501;</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库隔离级别"><span class="toc-number">2.</span> <span class="toc-text"><a href="#&#x6570;&#x636E;&#x5E93;&#x9694;&#x79BB;&#x7EA7;&#x522B;" class="headerlink" title="&#x6570;&#x636E;&#x5E93;&#x9694;&#x79BB;&#x7EA7;&#x522B;"></a>&#x6570;&#x636E;&#x5E93;&#x9694;&#x79BB;&#x7EA7;&#x522B;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#读不提交，造成脏读-Read-Uncommitted"><span class="toc-number">2.1.</span> <span class="toc-text"><a href="#&#x8BFB;&#x4E0D;&#x63D0;&#x4EA4;&#xFF0C;&#x9020;&#x6210;&#x810F;&#x8BFB;-Read-Uncommitted" class="headerlink" title="&#x8BFB;&#x4E0D;&#x63D0;&#x4EA4;&#xFF0C;&#x9020;&#x6210;&#x810F;&#x8BFB;(Read Uncommitted)"></a>&#x8BFB;&#x4E0D;&#x63D0;&#x4EA4;&#xFF0C;&#x9020;&#x6210;&#x810F;&#x8BFB;(Read Uncommitted)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#读提交-Read-Committed"><span class="toc-number">2.2.</span> <span class="toc-text"><a href="#&#x8BFB;&#x63D0;&#x4EA4;-Read-Committed" class="headerlink" title="&#x8BFB;&#x63D0;&#x4EA4;(Read Committed)"></a>&#x8BFB;&#x63D0;&#x4EA4;(Read Committed)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可重读-Repeatable-Read）"><span class="toc-number">2.3.</span> <span class="toc-text"><a href="#&#x53EF;&#x91CD;&#x8BFB;-Repeatable-Read&#xFF09;" class="headerlink" title="&#x53EF;&#x91CD;&#x8BFB;(Repeatable Read&#xFF09;"></a>&#x53EF;&#x91CD;&#x8BFB;(Repeatable Read&#xFF09;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可串行化（Serializable）"><span class="toc-number">2.4.</span> <span class="toc-text"><a href="#&#x53EF;&#x4E32;&#x884C;&#x5316;&#xFF08;Serializable&#xFF09;" class="headerlink" title="&#x53EF;&#x4E32;&#x884C;&#x5316;&#xFF08;Serializable&#xFF09;"></a>&#x53EF;&#x4E32;&#x884C;&#x5316;&#xFF08;Serializable&#xFF09;</span></a></li></ol></li></ol>
+    </div>
+  </span>
 </div>
 
     
-      
-  <div class="widget">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java/">java</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/leetcode/">leetcode</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/shell/">shell</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/小玩意/">小玩意</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/干货/">干货</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/并发/">并发</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/踩坑/">踩坑</a><span class="category-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/android/">android</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-EE/">java EE</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java并发/">java并发</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/">leetcode</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/shell/">shell</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/spring/">spring</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安装和配置/">安装和配置</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小玩意/">小玩意</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/干货/">干货</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/并发/">并发</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库/">数据库</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库事务/">数据库事务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据库锁/">数据库锁</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/踩坑/">踩坑</a><span class="tag-list-count">5</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">Archive</h3>
-    <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">16</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget-body">
-      <ul class="recent-post-list list-unstyled no-thumbnail">
+    <div class="content index py4">
         
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2018/06/19/netty高性能调优/" class="title">netty高性能调优</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2018-06-19T09:45:13.000Z" itemprop="datePublished">2018-06-19</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2018/05/08/数据库MVCC机制/" class="title">数据库MVCC机制</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2018-05-07T16:01:33.000Z" itemprop="datePublished">2018-05-08</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2018/05/06/rxjava-retrofit封装处理网络请求-1/" class="title">rxjava+retrofit封装处理网络请求</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2018-05-06T15:18:15.000Z" itemprop="datePublished">2018-05-06</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2018/05/06/rxjava-retrofit封装处理网络请求/" class="title">rxjava+retrofit封装处理网络请求</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2018-05-06T15:17:43.000Z" itemprop="datePublished">2018-05-06</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/android/">android</a>
-              </p>
-              <p class="item-title">
-                <a href="/2018/05/06/rxjava+retrofit封装处理网络请求/" class="title">rxjava2+retrofit封装处理网络请求全解析</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2018-05-06T15:17:37.000Z" itemprop="datePublished">2018-05-06</time>
-              </p>
-            </div>
-          </li>
-          
-      </ul>
-    </div>
-  </div>
-  
-
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
     
-  </div>
-</aside>
-
-  
-  
-<main class="main" role="main">
-  <div class="content">
-  <article id="post-数据库的锁机制" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
-    
-    <div class="article-header">
-      
-        
-  
-    <h1 class="article-title" itemprop="name">
-      数据库的锁机制
+    <h1 class="posttitle" itemprop="name headline">
+        数据库的锁机制
     </h1>
-  
 
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">stpehen的博客</span>
+      </span>
       
-      <div class="article-meta">
-        <span class="article-date">
-    <i class="fa fa-calendar-check-o"></i>
-	<a href="/2018/03/08/数据库的锁机制/" class="article-date">
-	  <time datetime="2018-03-08T10:11:15.000Z" itemprop="datePublished">2018-03-08</time>
-	</a>
-</span>
+    <div class="postdate">
+      
+        <time datetime="2018-03-08T10:11:15.000Z" itemprop="datePublished">2018-03-08</time>
         
-  <span class="article-category">
-    <i class="fa fa-folder"></i>
-    <a class="article-category-link" href="/categories/数据库/">数据库</a>
-  </span>
-
-        
-  <span class="article-tag">
-    <i class="fa fa-tag"></i>
-	<a class="article-tag-link" href="/tags/数据库锁/">数据库锁</a>
-  </span>
-
-
-        
-	<span class="article-read hidden-xs">
-	    <i class="fa fa-eye" aria-hidden="true"></i>
-	    <span id="busuanzi_container_page_pv">
-			<span id="busuanzi_value_page_pv">0</span>
-		</span>
-	</span>
-
-
-        <span class="post-comment"><i class="fa fa-commenting-o"></i> <a href="/2018/03/08/数据库的锁机制/#comments" class="article-comment-link">Comments</a></span>
-        
-	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">Word Count: 2,858(words)</span>
-	
-	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">Read Count: 10(minutes)</span>
-	
-
-      </div>
       
     </div>
-    <div class="article-entry markdown-body" itemprop="articleBody">
+
+
       
-        <p>前两天刚接到阿里hr的实习电话面试，一直以为对java基础、数据库基础很熟悉，却被问到哑口无言，结果我也不去期盼了，一首凉凉送给自己，可惜啊可惜，总结一句，还是自己太菜。不过也感谢这位java部门的hr，让我意识到真正理解是要能讲出来，要能逻辑一环扣一环，有清晰的知识体系。</p>
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/数据库/">数据库</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link" href="/tags/数据库锁/">数据库锁</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>前两天刚接到阿里hr的实习电话面试，一直以为对java基础、数据库基础很熟悉，却被问到哑口无言，结果我也不去期盼了，一首凉凉送给自己，可惜啊可惜，总结一句，还是自己太菜。不过也感谢这位java部门的hr，让我意识到真正理解是要能讲出来，要能逻辑一环扣一环，有清晰的知识体系。</p>
 <p>下面是面试中问到的数据库的锁机制，今天彻底理清楚。文章中有参考整理其他一些有价值的博客以及mysql官方文档的内容。</p>
 <h2 id="数据库锁"><a href="#数据库锁" class="headerlink" title="数据库锁"></a>数据库锁</h2><p>先看一张图自己整理的数据库锁的树形图</p>
 <p><img src="http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1520500121.png" alt=""></p>
@@ -450,184 +249,97 @@ innodb中表锁和行锁一起用，所以为了提高效率才会有意向锁�
 <p>参考文献： <a href="https://www.cnblogs.com/luyucheng/p/6297752.html" target="_blank" rel="noopener">https://www.cnblogs.com/luyucheng/p/6297752.html</a><br><a href="https://www.zhihu.com/question/51513268" target="_blank" rel="noopener">https://www.zhihu.com/question/51513268</a><br><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html</a></p>
 </blockquote>
 
-      
-    </div>
-    <div class="article-footer">
-      <blockquote class="mt-2x">
-  <ul class="post-copyright list-unstyled">
-    
-    <li class="post-copyright-link hidden-xs">
-      <strong>本文链接：</strong>
-      <a href="http://imwyy.github.io/2018/03/08/数据库的锁机制/" title="数据库的锁机制" target="_blank" rel="external">http://imwyy.github.io/2018/03/08/数据库的锁机制/</a>
-    </li>
-    
-    <li class="post-copyright-license">
-      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
-    </li>
-  </ul>
-</blockquote>
-
-
-<div class="panel panel-default panel-badger">
-  <div class="panel-body">
-    <figure class="media">
-      <div class="media-left">
-        <a href="https://github.com/IMWYY" target="_blank" class="img-burn thumb-sm visible-lg">
-          <img src="/images/head.jpg" class="img-rounded w-full" alt="">
-        </a>
-      </div>
-      <div class="media-body">
-        <h3 class="media-heading"><a href="https://github.com/IMWYY" target="_blank"><span class="text-dark">stephen</span><small class="ml-1x">What The f__k</small></a></h3>
-        <div>我真的不会码代码。</div>
-      </div>
-    </figure>
   </div>
-</div>
-
-
-    </div>
-  </article>
-  
-    
-  <section id="comments">
-  	
-       
-    <div id="uyan_frame"></div>
-
-    
-  </section>
-
-
-  
-</div>
-
-  <nav class="bar bar-footer clearfix" data-stick-bottom>
-  <div class="bar-inner">
-  
-  <ul class="pager pull-left">
-    
-    <li class="prev">
-      <a href="/2018/03/13/leetcode之manacher算法/" title="leetcode之manacher算法"><i class="fa fa-angle-left" aria-hidden="true"></i>&nbsp;&nbsp;Newer</a>
-    </li>
-    
-    
-    <li class="next">
-      <a href="/2018/02/09/idea项目添加spring/" title="idea项目添加spring">Older&nbsp;&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></a>
-    </li>
-    
-  </ul>
-  
-  
-  <!-- Button trigger modal -->
-  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning hidden-xs" data-toggle="modal" data-target="#donateModal"><span>$</span></button>
-  
-  
-  <div class="bar-right">
-    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
-  </div>
-  
-  </div>
-</nav>
-  
-<!-- Modal -->
-<div class="modal modal-center modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <div class="modal-body">
-        <div class="donate-box">
-          <div class="donate-tit">
-            <p>Thank you for your support, I will continue to work hard!</p>
-          </div>
-          <div class="donate-payimg">
-            <img src="/images/donate/alipayimg.png" alt="Scan Qrcode" title="Scan" />
-          </div>
-          <p class="text-muted mv">Scan this qrcode</p>
-          <div class="donate-payselect">
-            <div class="pay_item checked" data-id="alipay" data-src="/images/donate/alipayimg.png">
-              <div class="radio">
-                <input type="radio" name="payment" id="input-alipay" value="alipay" checked>
-                <label class="pay_logo clickable" for="input-alipay"><img src="/images/donate/alipay.jpg" alt="alipay" /></label>
-              </div>
-            </div>
-            <div class="pay_item" data-id="weipay" data-src="/images/donate/weipayimg.png">
-              <div class="radio">
-                <input type="radio" name="payment" id="input-weipay" value="weipay">
-                <label class="pay_logo clickable" for="input-weipay"><img src="/images/donate/weipay.jpg" alt="weipay" /></label>
-              </div>
-            </div>
-          </div>
-          <div class="text-grey">
-            <p>Scan this qrcode, you can sweep yards reward oh!</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+</article>
 
 
 
-</main>
-
-  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
-	
-	
-    <ul class="social-links">
-    	
-        <li><a href="https://github.com/IMWYY" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="fa fa-github"></i></a></li>
         
-    </ul>
+          <div id="footer-post-container">
+  <div id="footer-post">
 
-    <div class="copyright">
-    	
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Inici</a></li>
+         
+          <li><a href="/about/">Qui som</a></li>
+         
+          <li><a href="/archives/">Articles</a></li>
+         
+          <li><a href="/projects_url">Projectes</a></li>
+        
+      </ul>
     </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库锁"><span class="toc-number">1.</span> <span class="toc-text"><a href="#&#x6570;&#x636E;&#x5E93;&#x9501;" class="headerlink" title="&#x6570;&#x636E;&#x5E93;&#x9501;"></a>&#x6570;&#x636E;&#x5E93;&#x9501;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#概要"><span class="toc-number">1.0.1.</span> <span class="toc-text"><a href="#&#x6982;&#x8981;" class="headerlink" title="&#x6982;&#x8981;"></a>&#x6982;&#x8981;</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为了表锁和行锁而存在的意向锁"><span class="toc-number">1.1.</span> <span class="toc-text"><a href="#&#x4E3A;&#x4E86;&#x8868;&#x9501;&#x548C;&#x884C;&#x9501;&#x800C;&#x5B58;&#x5728;&#x7684;&#x610F;&#x5411;&#x9501;" class="headerlink" title="&#x4E3A;&#x4E86;&#x8868;&#x9501;&#x548C;&#x884C;&#x9501;&#x800C;&#x5B58;&#x5728;&#x7684;&#x610F;&#x5411;&#x9501;"></a>&#x4E3A;&#x4E86;&#x8868;&#x9501;&#x548C;&#x884C;&#x9501;&#x800C;&#x5B58;&#x5728;&#x7684;&#x610F;&#x5411;&#x9501;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#行锁的细分"><span class="toc-number">1.2.</span> <span class="toc-text"><a href="#&#x884C;&#x9501;&#x7684;&#x7EC6;&#x5206;" class="headerlink" title="&#x884C;&#x9501;&#x7684;&#x7EC6;&#x5206;"></a>&#x884C;&#x9501;&#x7684;&#x7EC6;&#x5206;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#共享锁"><span class="toc-number">1.2.1.</span> <span class="toc-text"><a href="#&#x5171;&#x4EAB;&#x9501;" class="headerlink" title="&#x5171;&#x4EAB;&#x9501;"></a>&#x5171;&#x4EAB;&#x9501;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#排他锁"><span class="toc-number">1.2.2.</span> <span class="toc-text"><a href="#&#x6392;&#x4ED6;&#x9501;" class="headerlink" title="&#x6392;&#x4ED6;&#x9501;"></a>&#x6392;&#x4ED6;&#x9501;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#更新锁"><span class="toc-number">1.2.3.</span> <span class="toc-text"><a href="#&#x66F4;&#x65B0;&#x9501;" class="headerlink" title="&#x66F4;&#x65B0;&#x9501;"></a>&#x66F4;&#x65B0;&#x9501;</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库隔离级别"><span class="toc-number">2.</span> <span class="toc-text"><a href="#&#x6570;&#x636E;&#x5E93;&#x9694;&#x79BB;&#x7EA7;&#x522B;" class="headerlink" title="&#x6570;&#x636E;&#x5E93;&#x9694;&#x79BB;&#x7EA7;&#x522B;"></a>&#x6570;&#x636E;&#x5E93;&#x9694;&#x79BB;&#x7EA7;&#x522B;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#读不提交，造成脏读-Read-Uncommitted"><span class="toc-number">2.1.</span> <span class="toc-text"><a href="#&#x8BFB;&#x4E0D;&#x63D0;&#x4EA4;&#xFF0C;&#x9020;&#x6210;&#x810F;&#x8BFB;-Read-Uncommitted" class="headerlink" title="&#x8BFB;&#x4E0D;&#x63D0;&#x4EA4;&#xFF0C;&#x9020;&#x6210;&#x810F;&#x8BFB;(Read Uncommitted)"></a>&#x8BFB;&#x4E0D;&#x63D0;&#x4EA4;&#xFF0C;&#x9020;&#x6210;&#x810F;&#x8BFB;(Read Uncommitted)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#读提交-Read-Committed"><span class="toc-number">2.2.</span> <span class="toc-text"><a href="#&#x8BFB;&#x63D0;&#x4EA4;-Read-Committed" class="headerlink" title="&#x8BFB;&#x63D0;&#x4EA4;(Read Committed)"></a>&#x8BFB;&#x63D0;&#x4EA4;(Read Committed)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可重读-Repeatable-Read）"><span class="toc-number">2.3.</span> <span class="toc-text"><a href="#&#x53EF;&#x91CD;&#x8BFB;-Repeatable-Read&#xFF09;" class="headerlink" title="&#x53EF;&#x91CD;&#x8BFB;(Repeatable Read&#xFF09;"></a>&#x53EF;&#x91CD;&#x8BFB;(Repeatable Read&#xFF09;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可串行化（Serializable）"><span class="toc-number">2.4.</span> <span class="toc-text"><a href="#&#x53EF;&#x4E32;&#x884C;&#x5316;&#xFF08;Serializable&#xFF09;" class="headerlink" title="&#x53EF;&#x4E32;&#x884C;&#x5316;&#xFF08;Serializable&#xFF09;"></a>&#x53EF;&#x4E32;&#x884C;&#x5316;&#xFF08;Serializable&#xFF09;</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=http://imwyy.github.io/2018/03/08/数据库的锁机制/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&text=数据库的锁机制"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&is_video=false&description=数据库的锁机制"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=数据库的锁机制&body=Check out this article: http://imwyy.github.io/2018/03/08/数据库的锁机制/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&title=数据库的锁机制"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=http://imwyy.github.io/2018/03/08/数据库的锁机制/&name=数据库的锁机制&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menú</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Compartir</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Cap amunt</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy; 2019 stpehen
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Inici</a></li>
+         
+          <li><a href="/about/">Qui som</a></li>
+         
+          <li><a href="/archives/">Articles</a></li>
+         
+          <li><a href="/projects_url">Projectes</a></li>
+        
+      </ul>
+    </nav>
+  </div>
 </footer>
-  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
-<script>
-window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
-</script>
-<script src="/js/plugin.js"></script>
-<script src="/js/application.js"></script>
-  
-    
-    
-    
-        <script>
-(function (window) {
-    var INSIGHT_CONFIG = {
-        TRANSLATION: {
-            POSTS: 'Posts',
-            PAGES: 'Pages',
-            CATEGORIES: 'Categories',
-            TAGS: 'Tags',
-            UNTITLED: '(Untitled)',
-        },
-        ROOT_URL: '/',
-        CONTENT_URL: '/content.json',
-    };
-    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
-})(window);
-</script>
-<script src="/js/insight.js"></script>
-    
-    
-    
-        
-<script defer src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
 
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<script src="/js/main.js"></script>
+<!-- search -->
 
-    
-    
-        
-    
-    <script defer type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=[object Object]"></script>
+<!-- Google Analytics -->
 
+<!-- Baidu Analytics -->
 
-    
-    
-
+<!-- Disqus Comments -->
 
 
 </body>
