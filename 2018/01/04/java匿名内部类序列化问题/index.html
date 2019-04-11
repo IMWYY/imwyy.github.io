@@ -11,7 +11,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="java匿名内部类序列化问题">
 <meta property="og:url" content="http://imwyy.github.io/2018/01/04/java匿名内部类序列化问题/index.html">
-<meta property="og:site_name" content="stpehen的博客">
+<meta property="og:site_name" content="stephen&#39;s Blog">
 <meta property="og:description" content="遇到一个序列化问题。明明对象已经实现了序列化接口，但是报错无法序列化外部的类（内心os，跟外部类什么关系啊）。最后发现原因是我使用的对象是匿名内部类的子类，继承的父类实现了序列化接口。 匿名内部类的对象会伴随主对象的整个生命周期，并且匿名类必然不会继承序列化接口支持序列化，所以在执行序列化时会发生无法序列化外部类的情况，因为匿名类对象也是一个需要序列化的成员。">
 <meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2018-01-04T12:40:00.456Z">
@@ -65,7 +65,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="/projects_url">Projects</a></li>
+          <li><a href="/tags/">tags</a></li>
         
       </ul>
     </span>
@@ -122,7 +122,7 @@
 
     <div class="meta">
       <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <span itemprop="name">stpehen的博客</span>
+        <span itemprop="name">stephen's Blog</span>
       </span>
       
     <div class="postdate">
@@ -173,7 +173,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="/projects_url">Projects</a></li>
+          <li><a href="/tags/">tags</a></li>
         
       </ul>
     </div>
@@ -211,7 +211,7 @@
         
         <footer id="footer">
   <div class="footer-left">
-    Copyright &copy; 2019 stpehen
+    Copyright &copy; 2019 stephen
   </div>
   <div class="footer-right">
     <nav>
@@ -223,7 +223,7 @@
          
           <li><a href="/archives/">Writing</a></li>
          
-          <li><a href="/projects_url">Projects</a></li>
+          <li><a href="/tags/">tags</a></li>
         
       </ul>
     </nav>
