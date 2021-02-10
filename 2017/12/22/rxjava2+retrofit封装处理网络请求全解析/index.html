@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="使用rxjava2+retrofit处理网络请求，线程的切换变得十分简单，代码也简洁了很多。但是简介的代码就是对可扩展性有着负面的影响，所以要对rxjava2+retrofit进行一定封装，使结构更清晰，可扩展性更强。这里给出一种可行的封装。 以下均以登陆请求为例子。  API地址：http:&#x2F;&#x2F;xxx&#x2F;user&#x2F;login Post请求，参数account和password均为String  简">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rxjava2+retrofit封装处理网络请求全解析">
+<meta property="og:url" content="http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="Stephen&#39;s Blog">
+<meta property="og:description" content="使用rxjava2+retrofit处理网络请求，线程的切换变得十分简单，代码也简洁了很多。但是简介的代码就是对可扩展性有着负面的影响，所以要对rxjava2+retrofit进行一定封装，使结构更清晰，可扩展性更强。这里给出一种可行的封装。 以下均以登陆请求为例子。  API地址：http:&#x2F;&#x2F;xxx&#x2F;user&#x2F;login Post请求，参数account和password均为String  简">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-12-22T02:49:07.000Z">
+<meta property="article:modified_time" content="2021-02-10T03:18:18.295Z">
+<meta property="article:author" content="Stephen Wang">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>rxjava2+retrofit封装处理网络请求全解析</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+      
+<link rel="stylesheet" href="/css/rtl.css">
+
+    
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/IMWYY">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2018/01/04/splash%E9%A1%B5%E5%90%AF%E5%8A%A8%E4%BC%98%E5%8C%96%E5%85%A8%E8%A7%A3%E6%9E%90/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2017/12/19/%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B4%A2%E5%BC%95/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&text=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&is_video=false&description=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=rxjava2+retrofit封装处理网络请求全解析&body=Check out this article: http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&name=rxjava2+retrofit封装处理网络请求全解析&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&t=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E5%B0%81%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text">简单封装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0cookie%E6%94%AF%E6%8C%81"><span class="toc-number">2.</span> <span class="toc-text">添加cookie支持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E9%94%99%E8%AF%AF%E7%A0%81%E7%BB%9F%E4%B8%80%E5%A4%84%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">添加错误码统一处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        rxjava2+retrofit封装处理网络请求全解析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Stephen Wang</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-12-22T02:49:07.000Z" itemprop="datePublished">2017-12-22</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Android/" rel="tag">Android</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>使用rxjava2+retrofit处理网络请求，线程的切换变得十分简单，代码也简洁了很多。但是简介的代码就是对可扩展性有着负面的影响，所以要对rxjava2+retrofit进行一定封装，使结构更清晰，可扩展性更强。这里给出一种可行的封装。</p>
+<p>以下均以登陆请求为例子。</p>
+<ul>
+<li>API地址：<code>http://xxx/user/login</code></li>
+<li>Post请求，参数<code>account</code>和<code>password</code>均为String</li>
+</ul>
+<h2 id="简单封装"><a href="#简单封装" class="headerlink" title="简单封装"></a>简单封装</h2><ol>
+<li><p><strong>首先定一个retrofit接口：<code>UserService</code></strong></p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST(&quot;/user/login&quot;)</span></span><br><span class="line">    Observable&lt;ResponseBean&lt;UidBean&gt;&gt; login(<span class="meta">@Field(&quot;account&quot;)</span> String account,</span><br><span class="line">                                            <span class="meta">@Field(&quot;password&quot;)</span> String password);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> 这里<code>ResponseBean</code>是一个返回值json对应的实体类，服务器返回的json数据格式为<code>&#123;code: xxx, message: xxx, data:xxx&#125;</code>。而<code>UidBean</code>是一个data的具体内容，也是个json实体类，具体是什么无关紧要。</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 服务器返回值的实体类</span></span><br><span class="line"><span class="comment"> * Created by stephen on 2017/9/8.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResponseBean</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@SerializedName(&quot;code&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> code;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName(&quot;message&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName(&quot;data&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> T data;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ResponseBean</span><span class="params">(<span class="keyword">int</span> code, String message)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.code = code;</span><br><span class="line">        <span class="keyword">this</span>.message = message;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> code;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getMessage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> message;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">getData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> data;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 根据返回码确定API是否请求返回失败</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@return</span> 失败返回true, 成功返回false</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isCodeValid</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	    <span class="keyword">return</span> code == <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;code:&quot;</span> + code + <span class="string">&quot;, message:&quot;</span> + message + <span class="string">&quot;,data:&quot;</span> + data.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p><strong>Oberser类的封装</strong></p>
+<p> 这里<code>BaseObserver</code>里直接对<code>Disposable</code>进行处理，内存泄漏什么的省心多了。同时还保存了一个子类可见的errMsg，可以获取自定义的错误类型。</p>
+<p> （关于Disposable可以参考我的<a target="_blank" rel="noopener" href="https://blog.csdn.net/c_j33/article/details/78774546">这篇文章</a>，如果有哪里理解错了记得帮忙指出哦）。</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseObserver</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Observer</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> String errMsg = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> Disposable disposable;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSubscribe</span><span class="params">(Disposable d)</span> </span>&#123;</span><br><span class="line">        disposable = d;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(T t)</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</span><br><span class="line">        LogUtils.e(<span class="string">&quot;Observer.java&quot;</span>, e.getMessage() + <span class="string">&quot; &quot;</span> + toastErrHint);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!NetworkUtils.isConnected()) &#123;</span><br><span class="line">            errMsg = <span class="string">&quot;网络连接出错,&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> HttpException) &#123;</span><br><span class="line">            errMsg = <span class="string">&quot;网络请求出错,&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> IOException) &#123;</span><br><span class="line">            errMsg = <span class="string">&quot;网络出错,&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        disposeIt();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onComplete</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        disposeIt();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 销毁disposable</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">disposeIt</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (disposable != <span class="keyword">null</span> &amp;&amp; !disposable.isDisposed()) &#123;</span><br><span class="line">            disposable.dispose();</span><br><span class="line">            disposable = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p><strong>接口类整合retrofit</strong></p>
+<ul>
+<li><p><code>HttpFactory</code>类里是一些网络交互的基本设置，单独放一个类是为了方便扩展。之后就会发现这样做的好处。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HttpFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> HttpFactory instance;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> HttpFactory <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> instance == <span class="keyword">null</span> ? instance = <span class="keyword">new</span> HttpFactory() : instance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Retrofit mRetrofit;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">HttpFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//创建一个OkHttpClient并设置超时时间</span></span><br><span class="line">        OkHttpClient httpClient = <span class="keyword">new</span> OkHttpClient.Builder()</span><br><span class="line">                .connectTimeout(AppConfig.DEFAULT_TIMEOUT, TimeUnit.SECONDS)</span><br><span class="line">                .cookieJar(cookieJar)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        mRetrofit = <span class="keyword">new</span> Retrofit.Builder()</span><br><span class="line">                .client(httpClient)</span><br><span class="line">                .baseUrl(AppConfig.URL_BASE)</span><br><span class="line">                .addConverterFactory(GsonConverterFactory.create())</span><br><span class="line">                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())</span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">Retrofit <span class="title">getmRetrofit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mRetrofit;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p><code>UserApi</code>类将retrofit接口封装成rxjava调用的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">APIUser</span> <span class="keyword">extends</span> <span class="title">BaseAPI</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> APIUser INSTANCE = <span class="keyword">new</span> APIUser();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> APIUser <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line">    <span class="keyword">private</span> Retrofit mRetrofit;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">APIUser</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        mRetrofit = HttpFactory.getInstance().getmRetrofit();</span><br><span class="line">        userService = mRetrofit.create(UserService.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 登录 这里为了方便逻辑展示，password直接明文传输</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> account  账号</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> password 密码</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> observer 观察者</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">login</span><span class="params">(String account, String password, BaseObserver&lt;UidBean&gt; observer)</span> </span>&#123;</span><br><span class="line">        userService.login(account, password)</span><br><span class="line">                .subscribeOn(Schedulers.io())</span><br><span class="line">                .observeOn(Schedulers.computation())</span><br><span class="line">                .map(<span class="keyword">new</span> Function&lt;ResponseBean&lt;UidBean&gt;, UidBean&gt;() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> UidBean <span class="title">apply</span><span class="params">(ResponseBean&lt;UidBean&gt; responseBean)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                        <span class="keyword">return</span> responseBean.getData();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)</span><br><span class="line">                .observeOn(AndroidSchedulers.mainThread())</span><br><span class="line">                .subscribe(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>愉快的调用</strong></p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">APIUser.getInstance().login(account, password, <span class="keyword">new</span> BaseObserver&lt;UidBean&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(UidBean uidBean)</span> </span>&#123;</span><br><span class="line">    	<span class="comment">// your logic code here</span></span><br><span class="line">        ToastUtils.showShort(<span class="string">&quot;登录成功&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h2 id="添加cookie支持"><a href="#添加cookie支持" class="headerlink" title="添加cookie支持"></a>添加cookie支持</h2></li>
+</ol>
+<p>以上实现了一个简单的封装，现在我们开始加入cookie支持：第一次拿到set-cookie的时候保存cookie，然后再每次request的时候加入cookie。</p>
+<p>这里借用了一下GitHub上别人造的轮子，使用了<a target="_blank" rel="noopener" href="https://github.com/franmontiel/PersistentCookieJar">PersistentCookieJar</a>。<code>PersistentCookieJar</code>是<code>ClearableCookieJar</code>的一个具体实现，利用SharedPreferences保存cookie。具体使用方法如下：</p>
+<ul>
+<li>添加gradle依赖</li>
+<li>在<code>HttpFactory</code>添加cookieJar</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HttpFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> HttpFactory instance;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> HttpFactory <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> instance == <span class="keyword">null</span> ? instance = <span class="keyword">new</span> HttpFactory() : instance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Retrofit mRetrofit;</span><br><span class="line">    <span class="keyword">private</span> ClearableCookieJar cookieJar;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">HttpFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//设置cookie</span></span><br><span class="line">        cookieJar = <span class="keyword">new</span> PersistentCookieJar(<span class="keyword">new</span> SetCookieCache(), <span class="keyword">new</span> SharedPrefsCookiePersistor());</span><br><span class="line">        <span class="comment">//创建一个OkHttpClient并设置超时时间</span></span><br><span class="line">        OkHttpClient httpClient = <span class="keyword">new</span> OkHttpClient.Builder()</span><br><span class="line">                .connectTimeout(AppConfig.DEFAULT_TIMEOUT, TimeUnit.SECONDS)</span><br><span class="line">                .cookieJar(cookieJar)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        mRetrofit = <span class="keyword">new</span> Retrofit.Builder()</span><br><span class="line">                .client(httpClient)</span><br><span class="line">                .baseUrl(AppConfig.URL_BASE)</span><br><span class="line">                .addConverterFactory(GsonConverterFactory.create())</span><br><span class="line">                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())</span><br><span class="line">                .build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">Retrofit <span class="title">getmRetrofit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mRetrofit;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 退出登录后清除cookie</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">clearCookie</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        cookieJar.clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里<code>HttpFactory</code>还提供了一个对外接口，可以在退出登录后调用清除<code>clearCookie()</code>cookie。</p>
+<p><strong>现在每次处理请求的时候，<code>ClearableCookieJar</code>就会帮你打点好所有的cookie验证相关信息。</strong></p>
+<h2 id="添加错误码统一处理"><a href="#添加错误码统一处理" class="headerlink" title="添加错误码统一处理"></a>添加错误码统一处理</h2><p>很多时候服务器返回的json数据格式会有一个统一的格式，比如以上说的形式：<code>&#123;code: xxx, message: xxx, data:xxx&#125;</code>。带有返回状态码和错误信息，如果对于每个code我们都在<code>Observer</code>中的<code>onNext</code>处理，显然很麻烦很冗余一点也不优雅，可扩展性也很差。比如服务器新添加一个状态码，所有的代码都要改，不切实际嘛。所以我们下面要做的就是<strong>对错误码添加统一处理。</strong></p>
+<p>实现思路：对于json数据response的时候，我们都会用<code>GsonConverterFactory</code>来将json转换为java对象，那么我们就可以利用<code>GsonConverterFactory</code>来统一处理。我们来重新定义一个类实现<code>GsonConverterFactory</code>的关键方法。因为<code>GsonConverterFactory</code>是final的，不可继承，所以这里会重新定义三个类：<code>CustomGsonConverterFactory</code>，<code>CustomGsonResponseBodyConverter</code>和<code>CustomGsonRequestBodyConverter</code>分别对应默认的<code>GsonConverterFactory</code>，<code>GsonResponseBodyConverter</code>和<code>GsonRequestBodyConverter</code>。</p>
+<ul>
+<li><p>CustomGsonConverterFactory</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义的GsonConverterFactory</span></span><br><span class="line"><span class="comment"> * 主要是重写了responseBodyConverter类</span></span><br><span class="line"><span class="comment"> * Created by stephen on 2017/10/2.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomGsonConverterFactory</span> <span class="keyword">extends</span> <span class="title">Converter</span>.<span class="title">Factory</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Create an instance using a default &#123;<span class="doctag">@link</span> Gson&#125; instance for conversion. Encoding to JSON and</span></span><br><span class="line"><span class="comment">     * decoding from JSON (when no charset is specified by a header) will use UTF-8.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> CustomGsonConverterFactory <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> create(<span class="keyword">new</span> Gson());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Create an instance using &#123;<span class="doctag">@code</span> gson&#125; for conversion. Encoding to JSON and</span></span><br><span class="line"><span class="comment">     * decoding from JSON (when no charset is specified by a header) will use UTF-8.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> CustomGsonConverterFactory <span class="title">create</span><span class="params">(Gson gson)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CustomGsonConverterFactory(gson);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Gson gson;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">CustomGsonConverterFactory</span><span class="params">(Gson gson)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (gson == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">&quot;gson == null&quot;</span>);</span><br><span class="line">        <span class="keyword">this</span>.gson = gson;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Converter&lt;ResponseBody, ?&gt; responseBodyConverter(Type type, Annotation[] annotations, Retrofit retrofit) &#123;</span><br><span class="line">        TypeAdapter&lt;?&gt; adapter = gson.getAdapter(TypeToken.get(type));</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CustomGsonResponseBodyConverter&lt;&gt;(gson, adapter);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Converter&lt;?, RequestBody&gt; requestBodyConverter(Type type, Annotation[] parameterAnnotations,</span><br><span class="line">                                                          Annotation[] methodAnnotations, Retrofit retrofit) &#123;</span><br><span class="line">        TypeAdapter&lt;?&gt; adapter = gson.getAdapter(TypeToken.get(type));</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CustomGsonRequestBodyConverter&lt;&gt;(gson, adapter);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>CustomGsonRequestBodyConverter。这个类没有改动，直接copy了GsonRequestBodyConverter的源码。</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomGsonRequestBodyConverter</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Converter</span>&lt;<span class="title">T</span>, <span class="title">RequestBody</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> MediaType MEDIA_TYPE = MediaType.parse(<span class="string">&quot;application/json; charset=UTF-8&quot;</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Charset UTF_8 = Charset.forName(<span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Gson gson;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> TypeAdapter&lt;T&gt; adapter;</span><br><span class="line"></span><br><span class="line">    CustomGsonRequestBodyConverter(Gson gson, TypeAdapter&lt;T&gt; adapter) &#123;</span><br><span class="line">        <span class="keyword">this</span>.gson = gson;</span><br><span class="line">        <span class="keyword">this</span>.adapter = adapter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> RequestBody <span class="title">convert</span><span class="params">(T value)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        Buffer buffer = <span class="keyword">new</span> Buffer();</span><br><span class="line">        Writer writer = <span class="keyword">new</span> OutputStreamWriter(buffer.outputStream(), UTF_8);</span><br><span class="line">        JsonWriter jsonWriter = gson.newJsonWriter(writer);</span><br><span class="line">        adapter.write(jsonWriter, value);</span><br><span class="line">        jsonWriter.close();</span><br><span class="line">        <span class="keyword">return</span> RequestBody.create(MEDIA_TYPE, buffer.readByteString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>CustomGsonResponseBodyConverter。重信写<code>convert</code>方法。这里直接将返回值转换为responseBean，并根据返回值判断是否返回成功（这里根据<code>responseBean.isCodeValid()</code>判断）。如果返回不成功，可以自定义一些exception，并抛出异常。比如我这里的<code>throw new APIException</code>。</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomGsonResponseBodyConverter</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Converter</span>&lt;<span class="title">ResponseBody</span>, <span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Gson gson;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> TypeAdapter&lt;T&gt; adapter;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Charset UTF_8 = Charset.forName(<span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line"></span><br><span class="line">    CustomGsonResponseBodyConverter(Gson gson, TypeAdapter&lt;T&gt; adapter) &#123;</span><br><span class="line">        <span class="keyword">this</span>.gson = gson;</span><br><span class="line">        <span class="keyword">this</span>.adapter = adapter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">convert</span><span class="params">(ResponseBody value)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String response = value.string();</span><br><span class="line">		<span class="comment">//关键代码</span></span><br><span class="line">        ResponseBean responseBean = gson.fromJson(response, ResponseBean.class);</span><br><span class="line">        <span class="keyword">if</span> (!responseBean.isCodeValid()) &#123;</span><br><span class="line">            value.close();</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> APIException(responseBean.getCode(), responseBean.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        MediaType contentType = value.contentType();</span><br><span class="line">        Charset charset = contentType != <span class="keyword">null</span> ? contentType.charset(UTF_8) : UTF_8;</span><br><span class="line">        InputStream inputStream = <span class="keyword">new</span> ByteArrayInputStream(response.getBytes());</span><br><span class="line">        Reader reader = <span class="keyword">new</span> InputStreamReader(inputStream, charset);</span><br><span class="line">        JsonReader jsonReader = gson.newJsonReader(reader);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> adapter.read(jsonReader);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            value.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>同样的自定义的exception可以在<code>BaseObserver</code>的<code>onError</code>中捕获然后获取不同的<code>errMsg</code>。</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</span><br><span class="line">    LogUtils.e(<span class="string">&quot;Observer.java&quot;</span>, e.getMessage() + <span class="string">&quot; &quot;</span> + toastErrHint);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!NetworkUtils.isConnected()) &#123;</span><br><span class="line">        errMsg = <span class="string">&quot;网络连接出错,&quot;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> APIException) &#123;</span><br><span class="line">        APIException exception = (APIException) e;</span><br><span class="line">        errMsg = exception.getMessage();</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> HttpException) &#123;</span><br><span class="line">        errMsg = <span class="string">&quot;网络请求出错,&quot;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> IOException) &#123;</span><br><span class="line">        errMsg = <span class="string">&quot;网络出错,&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2></li>
+</ul>
+<p>好了至此，封装已经可以达到了一定的可扩展性，使用也很方便。事实上你还可以在<code>BaseObserver</code>中添加一些其他的东西，比如加载动画等等。</p>
+<p>大家有意见提出来一起探讨，共同进步。:）</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/IMWYY">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E5%B0%81%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text">简单封装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0cookie%E6%94%AF%E6%8C%81"><span class="toc-number">2.</span> <span class="toc-text">添加cookie支持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E9%94%99%E8%AF%AF%E7%A0%81%E7%BB%9F%E4%B8%80%E5%A4%84%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">添加错误码统一处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&text=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&is_video=false&description=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=rxjava2+retrofit封装处理网络请求全解析&body=Check out this article: http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&title=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&name=rxjava2+retrofit封装处理网络请求全解析&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2017/12/22/rxjava2+retrofit%E5%B0%81%E8%A3%85%E5%A4%84%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82%E5%85%A8%E8%A7%A3%E6%9E%90/&t=rxjava2+retrofit封装处理网络请求全解析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2017-2021
+    Stephen Wang
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a target="_blank" rel="noopener" href="https://github.com/IMWYY">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+
+    <!-- jquery -->
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+
+<!-- clipboard -->
+
+  
+<script src="/lib/clipboard/clipboard.min.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
