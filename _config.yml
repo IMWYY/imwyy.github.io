@@ -5,7 +5,7 @@
 # Site
 title: Stephen's Blog
 subtitle: ''
-description: '做人如水 做事如山'
+description: "Welcome to Stephen Wang's blog. Check [About Me](/about/)."
 keywords:
 author: Stephen Wang
 language: en
@@ -107,8 +107,8 @@ theme_config:
     articles: /archives/
     projects: https://github.com/IMWYY
   posts_overview:
-    show_all_posts: false
-    post_count: 5
+    show_all_posts: true
+    # post_count: 5
   social_links:
     github: https://github.com/IMWYY
     # twitter: /
