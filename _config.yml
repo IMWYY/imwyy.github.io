@@ -119,6 +119,8 @@ theme_config:
     start_year: 2017
     end_year:
   highlight: xcode
+  index:
+    articles: Articles
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment

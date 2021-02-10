@@ -29,7 +29,8 @@ tags: Network
 
 > 因此如果需要使用`ThreadLocal`保存上下文，那么许多channel就会共享同一个上下文。
 
-[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-01N5cO4V-1612922409862)(http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1529394914.png)]
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210210121005997.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NfSjMz,size_16,color_FFFFFF,t_70)
+
 
  因此不需要每次都new出一个`EventLoopGroup`，其本质上是线程分配，**可以复用同一个`EventLoopGroup`，减少资源的使用和线程的切换**。特别是在服务端引导一个客户端连接的时候。如下：
 
@@ -203,7 +204,7 @@ public void yourMethod() {
 #### 10. 响应顺序的处理
 
 当使用了单链接，就有一个必须要解决的问题，将请求和响应顺序对应起来。因为所有的操作都是异步的，TCP是基于字节流的，所以channel接收到的数据无法保证和发送顺序一致。这个的解决方案就是，对于每个请求指定一个id，对于响应也携带该id。如果后发的请求的响应先到，则将其缓存起来（可以使用一个并发的队列），然后等待该id之前的所有响应全部接收到，再按序返回。
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210210121028321.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0NfSjMz,size_16,color_FFFFFF,t_70)
 
-[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-mWM4T15m-1612922409864)(http://raw.githubusercontent.com/IMWYY/AboutMyself/master/picBed/Screenshot1529400921.png)]
 
 具体实现可以参见nifty中的[NiftyDispatcher类](https://github.com/facebookarchive/nifty/blob/master/nifty-core/src/main/java/com/facebook/nifty/core/NiftyDispatcher.java)。
